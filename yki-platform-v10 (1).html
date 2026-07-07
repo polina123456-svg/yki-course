@@ -1,0 +1,1950 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hei Study — course builder</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=Fraunces:ital,wght@0,500;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy: #01184E; --navy-2: #0B2A6B; --navy-soft: #EAF0FC; --bg: #F3F6FB;
+    --ink: #101A33; --ink-soft: #5A6478; --ink-faint: #97A0B3; --card: #FFFFFF;
+    --border: #E4E8F2; --border-strong: #CBD3E6; --gold: #E8A33D; --gold-soft: #FBF0DC;
+    --teal: #2EA8A0; --teal-soft: #E2F5F3; --coral: #E0654F; --coral-soft: #FBEAE6;
+    --success: #2F9E58; --success-soft: #E6F5EA; --danger: #D6503F; --danger-soft: #FBE9E6;
+    --radius: 12px; --radius-lg: 18px; --font-ui: 'Manrope', sans-serif; --font-read: 'Fraunces', serif;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--font-ui); -webkit-font-smoothing: antialiased; }
+  #app { min-height: 100vh; display: flex; flex-direction: column; }
+
+  .topbar { display: flex; align-items: center; justify-content: space-between; padding: 16px 28px; background: var(--navy); color: #fff; gap: 16px; flex-wrap: wrap; }
+  .brand { display: flex; align-items: center; gap: 11px; }
+  .brand-mark { width: 34px; height: 34px; border-radius: 9px; background: linear-gradient(135deg, var(--gold), var(--coral)); display: flex; align-items: center; justify-content: center; font-family: var(--font-read); font-weight: 600; font-size: 16px; color: var(--navy); flex-shrink: 0; }
+  .brand-text { font-size: 16px; font-weight: 700; letter-spacing: 0.2px; }
+  .brand-sub { font-size: 12px; color: #9FB0DE; margin-top: 1px; }
+
+  .mode-toggle { display: flex; background: rgba(255,255,255,0.1); border-radius: 999px; padding: 4px; }
+  .mode-toggle button { border: none; background: transparent; color: #C6D1EE; font-family: var(--font-ui); font-size: 13px; font-weight: 600; padding: 8px 18px; border-radius: 999px; cursor: pointer; transition: all .15s; }
+  .mode-toggle button.active { background: var(--gold); color: var(--navy); }
+
+  .layout { display: flex; flex: 1; min-height: 0; }
+
+  .sidebar { width: 310px; flex-shrink: 0; background: var(--card); border-right: 1px solid var(--border); padding: 20px; overflow-y: auto; }
+  .picker-group { margin-bottom: 16px; }
+  .picker-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.7px; color: var(--ink-faint); margin-bottom: 6px; font-weight: 700; }
+  select { width: 100%; padding: 10px 11px; border-radius: var(--radius); border: 1px solid var(--border-strong); background: #fff; font-family: var(--font-ui); font-size: 14px; color: var(--ink); cursor: pointer; font-weight: 500; }
+
+  .section-divider { height: 1px; background: var(--border); margin: 16px 0; }
+
+  .progress-ring-wrap { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; padding: 12px 14px; background: var(--navy); border-radius: var(--radius-lg); }
+  .progress-ring { flex-shrink: 0; }
+  .progress-text { font-size: 12px; color: #B9C7F0; line-height: 1.4; }
+  .progress-text b { font-family: var(--font-read); font-size: 18px; color: #fff; }
+
+  .module-progress { display: flex; align-items: center; gap: 8px; margin-bottom: 14px; padding: 10px 12px; background: var(--teal-soft); border-radius: 10px; font-size: 12px; color: #0E5C56; font-weight: 600; }
+
+  .section-item { display: flex; align-items: center; gap: 10px; padding: 11px 11px; border-radius: 10px; cursor: pointer; margin-bottom: 5px; border: 1px solid transparent; position: relative; }
+  .section-item:hover { background: #F7F9FD; }
+  .section-item.active { background: var(--navy-soft); border-color: var(--navy-2); }
+  .step-num { width: 24px; height: 24px; border-radius: 50%; background: var(--border); color: var(--ink-soft); font-size: 12px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .section-item.active .step-num { background: var(--navy); color: #fff; }
+  .section-item.done .step-num { background: var(--success); color: #fff; }
+  .section-item .handle { color: var(--ink-faint); font-size: 12px; cursor: grab; }
+  .section-item .title { flex: 1; font-size: 13.5px; color: var(--ink); line-height: 1.35; font-weight: 500; }
+  .section-item .menu-dots { color: var(--ink-faint); font-size: 14px; padding: 2px 4px; border-radius: 4px; }
+  .section-item .menu-dots:hover { background: var(--border); }
+
+  .add-section-btn { width: 100%; padding: 11px; border: 1.5px dashed var(--border-strong); background: transparent; border-radius: 10px; color: var(--ink-soft); font-family: var(--font-ui); font-size: 13px; font-weight: 600; cursor: pointer; margin-top: 8px; }
+  .add-section-btn:hover { background: var(--navy-soft); border-color: var(--navy-2); color: var(--navy); }
+
+  .homework-pin { margin-top: 18px; padding: 12px 14px; border-radius: 10px; background: var(--gold-soft); color: #8A5F16; font-size: 13px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 8px; }
+  .homework-pin.active { outline: 2px solid var(--gold); }
+
+  .content { flex: 1; overflow-y: auto; padding: 34px 44px; max-width: 940px; }
+  .content-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; margin-bottom: 20px; }
+  .section-title-input { font-family: var(--font-read); font-size: 28px; font-weight: 600; border: none; background: transparent; width: 100%; color: var(--navy); padding: 4px 0; border-bottom: 2px solid transparent; }
+  .section-title-input:focus { outline: none; border-bottom-color: var(--navy); }
+  .section-title-view { font-family: var(--font-read); font-size: 28px; font-weight: 600; margin: 0 0 6px; color: var(--navy); }
+
+  .body-editor { width: 100%; min-height: 220px; font-family: var(--font-ui); font-size: 14px; line-height: 1.7; border: 1px solid var(--border-strong); border-radius: var(--radius); padding: 14px; resize: vertical; color: var(--ink); }
+  .editor-hint { font-size: 11.5px; color: var(--ink-faint); margin: 6px 0 14px; line-height: 1.5; }
+
+  .content-cards { display: flex; flex-direction: column; gap: 14px; }
+  .content-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 18px 20px; }
+  .content-card p { margin: 0 0 12px; font-family: var(--font-ui); font-size: 15px; line-height: 1.7; color: var(--ink); }
+  .content-card p:last-child { margin-bottom: 0; }
+  .content-card strong { font-weight: 700; color: var(--navy); }
+  .content-card ul { margin: 0; padding-left: 20px; }
+  .content-card li { margin-bottom: 6px; font-size: 15px; line-height: 1.6; }
+
+  .lifehack-card { background: var(--navy); border-radius: var(--radius-lg); padding: 16px 20px; color: #fff; display: flex; gap: 12px; align-items: flex-start; }
+  .lifehack-card .badge { background: var(--gold); color: var(--navy); font-size: 11px; font-weight: 800; padding: 3px 9px; border-radius: 6px; flex-shrink: 0; margin-top: 2px; }
+  .lifehack-card .text { font-size: 14px; line-height: 1.6; color: #DCE4F7; }
+
+  .quote-card { background: var(--teal-soft); border-radius: var(--radius-lg); padding: 16px 20px; border-left: 4px solid var(--teal); }
+  .quote-card .quote-text { font-family: var(--font-read); font-style: italic; font-size: 16px; line-height: 1.7; color: #0E5C56; }
+
+  .vocab-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 10px; }
+  .vocab-chip { perspective: 900px; cursor: pointer; min-height: 84px; }
+  .vocab-chip-inner { position: relative; width: 100%; height: 100%; min-height: 84px; transition: transform .45s cubic-bezier(.2,.8,.2,1); transform-style: preserve-3d; }
+  .vocab-chip.flipped .vocab-chip-inner { transform: rotateY(180deg); }
+  .vocab-face { position: absolute; inset: 0; backface-visibility: hidden; background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 10px 12px; display: flex; flex-direction: column; justify-content: center; }
+  .vocab-face:hover { border-color: var(--navy); }
+  .vocab-back { transform: rotateY(180deg); background: var(--navy-soft); }
+  .vocab-chip .fi { font-weight: 700; color: var(--navy); font-size: 15px; }
+  .vocab-chip .flip-hint { font-size: 10px; color: var(--ink-faint); margin-top: 4px; }
+  .vocab-chip .en { font-size: 13.5px; color: var(--ink); font-weight: 600; }
+  .vocab-chip .note { font-size: 11.5px; color: var(--teal); margin-top: 4px; font-weight: 600; }
+
+  .exercises-wrap { margin-top: 28px; }
+  .exercises-heading { font-size: 12px; text-transform: uppercase; letter-spacing: 0.6px; color: var(--ink-faint); font-weight: 700; margin-bottom: 10px; }
+
+  .exercise-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 16px 18px; margin-bottom: 12px; }
+  .exercise-type-tag { display: inline-block; font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.4px; font-weight: 500; padding: 3px 8px; border-radius: 5px; margin-bottom: 8px; }
+  .tag-mc { background: var(--navy-soft); color: var(--navy); }
+  .tag-tf { background: var(--teal-soft); color: #0E5C56; }
+  .tag-open { background: var(--gold-soft); color: #8A5F16; }
+  .tag-flash { background: var(--coral-soft); color: var(--coral); }
+  .tag-match { background: #EAE2FB; color: #5B3FA0; }
+  .tag-fill { background: var(--success-soft); color: var(--success); }
+  .tag-order { background: #DCEBFF; color: #1257B0; }
+  .tag-diag { background: #FCE4EC; color: #AD1457; }
+  .diag-progress { display: flex; gap: 6px; margin-bottom: 14px; }
+  .diag-dot { flex: 1; height: 5px; border-radius: 3px; background: var(--border); }
+  .diag-dot.filled { background: var(--navy); }
+  .diag-result-card { border-radius: var(--radius-lg); padding: 20px 22px; text-align: center; }
+  .diag-great { background: var(--success-soft); }
+  .diag-ontrack { background: var(--gold-soft); }
+  .diag-fix { background: var(--coral-soft); }
+  .diag-result-title { font-family: var(--font-read); font-size: 20px; font-weight: 600; margin-bottom: 8px; }
+
+  .exercise-q { font-size: 15px; font-weight: 500; margin-bottom: 10px; line-height: 1.5; }
+  .option-row { display: flex; align-items: center; gap: 9px; padding: 9px 12px; border: 1px solid var(--border-strong); border-radius: 8px; margin-bottom: 7px; cursor: pointer; font-size: 14px; transition: all .12s; }
+  .option-row:hover { border-color: var(--navy); background: var(--navy-soft); }
+  .option-row.correct-answer { border-color: var(--success); background: var(--success-soft); }
+  .option-row.wrong-answer { border-color: var(--danger); background: var(--danger-soft); }
+
+  .btn { font-family: var(--font-ui); font-size: 13.5px; font-weight: 500; padding: 9px 16px; border-radius: 8px; border: 1px solid var(--border-strong); background: #fff; color: var(--ink); cursor: pointer; }
+  .btn:hover { background: #F8FAFB; }
+  .btn-primary { background: var(--navy); border-color: var(--navy); color: #fff; }
+  .btn-primary:hover { background: var(--navy-2); }
+  .btn-gold { background: var(--gold); border-color: var(--gold); color: var(--navy); }
+  .btn-danger-ghost { color: var(--danger); border-color: var(--danger-soft); }
+  .btn-sm { padding: 5px 10px; font-size: 12.5px; }
+
+  .feedback-box { margin-top: 10px; padding: 10px 12px; border-radius: 8px; font-size: 13.5px; }
+  .feedback-correct { background: var(--success-soft); color: var(--success); }
+  .feedback-wrong { background: var(--danger-soft); color: var(--danger); }
+
+  .add-exercise-card { border: 1px dashed var(--border-strong); border-radius: var(--radius-lg); padding: 14px 18px; text-align: center; color: var(--ink-soft); cursor: pointer; font-size: 13.5px; }
+  .add-exercise-card:hover { border-color: var(--navy); background: var(--navy-soft); color: var(--navy); }
+
+  .builder-form { display: flex; flex-direction: column; gap: 10px; }
+  .builder-form label { font-size: 12px; color: var(--ink-faint); font-weight: 500; }
+  .builder-form input[type="text"], .builder-form textarea, .builder-form select { width: 100%; padding: 8px 10px; border: 1px solid var(--border-strong); border-radius: 7px; font-family: var(--font-ui); font-size: 13.5px; }
+  .option-edit-row, .pair-edit-row { display: flex; align-items: center; gap: 8px; }
+  .option-edit-row input[type="text"], .pair-edit-row input[type="text"] { flex: 1; }
+
+  .flash-wrap { display: flex; flex-direction: column; align-items: center; gap: 14px; }
+  .flash-stack { position: relative; width: 100%; max-width: 380px; height: 220px; touch-action: none; }
+  .flash-card { position: absolute; inset: 0; border-radius: var(--radius-lg); cursor: grab; display: flex; align-items: center; justify-content: center; padding: 22px; text-align: center; font-family: var(--font-read); font-size: 22px; font-weight: 500; user-select: none; box-shadow: 0 8px 22px rgba(1,24,78,0.12); transition: transform .35s cubic-bezier(.2,.8,.2,1), opacity .35s; background: var(--navy); color: #fff; }
+  .flash-card.behind { z-index: 0; transform: scale(0.94) translateY(10px); opacity: 0.6; box-shadow: none; }
+  .flash-card.top { z-index: 1; }
+  .flash-card.flipped { background: var(--gold-soft); color: #8A5F16; }
+  .flash-card.dragging { cursor: grabbing; transition: none; }
+  .flash-card .swipe-label { position: absolute; top: 14px; font-family: var(--font-ui); font-size: 12px; font-weight: 700; letter-spacing: 0.5px; padding: 4px 10px; border-radius: 6px; opacity: 0; transition: opacity .1s; }
+  .swipe-label.know { right: 14px; background: var(--success); color: #fff; }
+  .swipe-label.dontknow { left: 14px; background: var(--danger); color: #fff; }
+
+  .flash-actions { display: flex; align-items: center; gap: 20px; }
+  .flash-round-btn { width: 50px; height: 50px; border-radius: 50%; border: 1px solid var(--border-strong); background: #fff; display: flex; align-items: center; justify-content: center; font-size: 19px; cursor: pointer; transition: all .15s; }
+  .flash-round-btn:hover { transform: scale(1.06); }
+  .flash-round-btn.dontknow:hover { border-color: var(--danger); color: var(--danger); }
+  .flash-round-btn.know:hover { border-color: var(--success); color: var(--success); }
+  .flash-counter { font-size: 13px; color: var(--ink-soft); font-weight: 600; }
+  .flash-hint { font-size: 11.5px; color: var(--ink-faint); text-align: center; }
+
+  .flash-summary { text-align: center; padding: 16px; }
+  .flash-summary-stats { display: flex; gap: 14px; justify-content: center; margin: 14px 0; }
+  .stat-pill { padding: 9px 16px; border-radius: 10px; font-weight: 700; font-size: 14px; }
+  .stat-know { background: var(--success-soft); color: var(--success); }
+  .stat-dontknow { background: var(--danger-soft); color: var(--danger); }
+  .export-row { display: flex; gap: 8px; margin-top: 14px; flex-wrap: wrap; justify-content: center; }
+
+  .match-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+  .match-col { display: flex; flex-direction: column; gap: 8px; }
+  .match-item { padding: 11px 14px; border-radius: 10px; border: 1px solid var(--border-strong); font-size: 14px; font-weight: 500; cursor: pointer; transition: all .12s; }
+  .match-item:hover { border-color: var(--navy); }
+  .match-item.selected { border-color: var(--navy); background: var(--navy-soft); }
+  .match-item.matched { border-color: var(--success); background: var(--success-soft); color: var(--success); cursor: default; }
+  .match-item.wrong-flash { border-color: var(--danger); background: var(--danger-soft); }
+
+  .fill-sentence { font-size: 16px; line-height: 1.8; margin-bottom: 12px; }
+  .fill-input { width: 140px; border: none; border-bottom: 2px solid var(--navy); background: var(--navy-soft); font-family: var(--font-ui); font-size: 15px; padding: 4px 8px; text-align: center; border-radius: 6px 6px 0 0; }
+
+  .order-tokens { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; min-height: 40px; padding: 10px; border: 1px dashed var(--border-strong); border-radius: 10px; }
+  .order-token { padding: 8px 14px; border-radius: 8px; background: var(--navy-soft); color: var(--navy); font-weight: 600; font-size: 13.5px; cursor: pointer; transition: all .12s; }
+  .order-token:hover { transform: translateY(-1px); }
+  .order-token.used { opacity: 0.35; cursor: default; background: var(--border); color: var(--ink-faint); }
+  .order-answer { display: flex; flex-wrap: wrap; gap: 8px; min-height: 40px; padding: 10px; border-radius: 10px; background: #fff; border: 1px solid var(--border-strong); margin-bottom: 10px; }
+  .order-answer .order-token { background: var(--gold-soft); color: #8A5F16; }
+
+  .audio-answer-toggle { display: flex; gap: 8px; margin-bottom: 10px; }
+  .audio-answer-toggle button.active { background: var(--navy); color: #fff; border-color: var(--navy); }
+  .recorder-box { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+  .rec-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--danger); }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.3} }
+  .rec-dot.live { animation: pulse 1s infinite; }
+  .rec-timer { font-size: 13px; color: var(--ink-soft); font-weight: 600; }
+  .audio-note { font-size: 11.5px; color: var(--ink-faint); margin-top: 6px; }
+
+  .empty-state { text-align: center; padding: 60px 20px; color: var(--ink-faint); }
+
+  @media (max-width: 780px) {
+    .layout { flex-direction: column; }
+    .sidebar { width: 100%; border-right: none; border-bottom: 1px solid var(--border); }
+    .content { padding: 20px; }
+    .match-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<div id="app">
+  <div class="topbar">
+    <div class="brand">
+      <div class="brand-mark">Y</div>
+      <div>
+        <div class="brand-text">Hei Study</div>
+        <div class="brand-sub" id="lessonCrumb">Module 1 · Lesson 1.1</div>
+      </div>
+    </div>
+    <div class="mode-toggle">
+      <button id="modeEditBtn" class="active">Editor</button>
+      <button id="modeStudyBtn">Study mode</button>
+    </div>
+  </div>
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="picker-group">
+        <div class="picker-label">Module</div>
+        <select id="moduleSelect"></select>
+      </div>
+      <div class="picker-group">
+        <div class="picker-label">Lesson</div>
+        <select id="lessonSelect"></select>
+      </div>
+
+      <div class="module-progress" id="moduleProgressBar"></div>
+      <div class="progress-ring-wrap" id="progressRingWrap"></div>
+
+      <div class="section-divider"></div>
+      <div class="picker-label">Sections</div>
+      <div id="sectionList" style="margin-top: 8px;"></div>
+      <button class="add-section-btn" id="addSectionBtn">+ Add section</button>
+
+      <div class="homework-pin" id="homeworkPin">📌 For homework</div>
+    </aside>
+    <main class="content" id="mainContent"></main>
+  </div>
+</div>
+
+<script>
+function uid() { return 'id-' + Math.random().toString(36).slice(2, 10) + Date.now().toString(36); }
+function escapeHtml(s) { return (s || '').replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
+function inlineFormat(s) { s = escapeHtml(s); return s.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>'); }
+
+function renderBody(raw) {
+  if (!raw) return '<div class="content-cards"><div class="content-card"><p style="color:var(--ink-faint)">Nothing here yet. Switch to Editor to add text.</p></div></div>';
+  const lines = raw.split('\n');
+  let blocks = []; let buffer = []; let vocabBuffer = [];
+  function flushParagraphBuffer() { if (buffer.length) { blocks.push({ type: 'paragraphs', lines: buffer }); buffer = []; } }
+  function flushVocab() { if (vocabBuffer.length) { blocks.push({ type: 'vocab', items: vocabBuffer }); vocabBuffer = []; } }
+  for (let line of lines) {
+    const trimmed = line.trim();
+    if (trimmed.startsWith('LIFEHACK:')) { flushParagraphBuffer(); flushVocab(); blocks.push({ type: 'lifehack', text: trimmed.slice(9).trim() }); continue; }
+    if (trimmed.startsWith('QUOTE:')) { flushParagraphBuffer(); flushVocab(); blocks.push({ type: 'quote', text: trimmed.slice(6).trim() }); continue; }
+    if (trimmed.startsWith('VOCAB:')) { flushParagraphBuffer(); const parts = trimmed.slice(6).split('|').map(s => s.trim()); vocabBuffer.push({ fi: parts[0] || '', en: parts[1] || '', note: parts[2] || '' }); continue; }
+    flushVocab();
+    if (trimmed === '') continue;
+    buffer.push(trimmed);
+  }
+  flushParagraphBuffer(); flushVocab();
+
+  let html = '<div class="content-cards">';
+  for (const block of blocks) {
+    if (block.type === 'lifehack') html += `<div class="lifehack-card"><span class="badge">Lifehack</span><span class="text">${inlineFormat(block.text)}</span></div>`;
+    else if (block.type === 'quote') html += `<div class="quote-card"><div class="quote-text">"${inlineFormat(block.text)}"</div></div>`;
+    else if (block.type === 'vocab') html += `<div class="content-card"><div class="vocab-grid">${block.items.map(v => `
+      <div class="vocab-chip" onclick="this.classList.toggle('flipped')">
+        <div class="vocab-chip-inner">
+          <div class="vocab-face vocab-front"><div class="fi">${escapeHtml(v.fi)}</div><div class="flip-hint">tap to flip ↻</div></div>
+          <div class="vocab-face vocab-back"><div class="en">${escapeHtml(v.en)}</div>${v.note ? `<div class="note">${escapeHtml(v.note)}</div>` : ''}</div>
+        </div>
+      </div>`).join('')}</div></div>`;
+    else if (block.type === 'paragraphs') {
+      let inner = ''; let inList = false;
+      for (const l of block.lines) {
+        if (l.startsWith('- ')) { if (!inList) { inner += '<ul>'; inList = true; } inner += `<li>${inlineFormat(l.slice(2))}</li>`; }
+        else { if (inList) { inner += '</ul>'; inList = false; } inner += `<p>${inlineFormat(l)}</p>`; }
+      }
+      if (inList) inner += '</ul>';
+      html += `<div class="content-card">${inner}</div>`;
+    }
+  }
+  html += '</div>';
+  return html;
+}
+
+// ==================== SEED CONTENT: FULL MODULE 1 (10 lessons) ====================
+function seedCourse() {
+  function L(title, homework, sections) { return { id: uid(), title, homework, sections }; }
+  function S(title, body, exercises) { return { id: uid(), title, body, exercises }; }
+  const mc = (question, options) => ({ id: uid(), type: 'mc', question, options });
+  const tf = (statement, answer, explain) => ({ id: uid(), type: 'tf', statement, answer, explain: explain || '' });
+  const openq = (question, answer) => ({ id: uid(), type: 'open', question, answer: answer || '' });
+  const flash = (cards) => ({ id: uid(), type: 'flash', cards });
+  const match = (pairs) => ({ id: uid(), type: 'match', pairs });
+  const fill = (text, answer) => ({ id: uid(), type: 'fill', text, answer });
+  const order = (words) => ({ id: uid(), type: 'order', words });
+  const diagnostic = (questions) => ({ id: uid(), type: 'diagnostic', questions });
+
+  return {
+    modules: [{
+      id: uid(),
+      title: 'Module 1: YKI Foundations',
+      lessons: (function() {
+        const raw = [
+
+        // ============ LESSON 1.1 ============
+        L('Lesson 1.1 — Anatomy of YKI Texts',
+          `1. Find any official notice on your municipality's website, identify its type within 5 seconds, then write down 5 new words with grammar notes.\n2. Compile a list of 10 trap-signal words.\n3. Take any text and write 3 questions of different formats yourself.\n4. Re-read both sample texts without translation — time yourself.`,
+          [
+            S('Section 1 — Introduction & Exam Structure',
+              `80% of mistakes on the YKI happen not because a person doesn't know Finnish, but because they don't understand WHAT exactly each text type is testing and WHAT traps are built into the questions.\n\nMost learners prepare for YKI the way they'd prepare for a school vocabulary test: memorize more words, hope it's enough. But the exam is designed by people who understand exactly how second-language readers make mistakes.\n\n**Exact exam structure:** Reading (Tekstin ymmärtäminen) is the first or second part of the exam and lasts 60 minutes. It includes 6–7 texts of different genres — from notices and emails to analytical newspaper articles. Texts are usually arranged in increasing order of difficulty, and the final tasks are most often open-answer questions in Finnish.\n\nCommon structural failure points:\n- Confusing "not stated" with "false"\n- Anchoring on a familiar word without checking the exact detail\n- Answering from real-world logic instead of what the text says\n- Missing a negation buried in a longer sentence\n\nVOCAB: perusteellinen | thorough, in-depth | B1 adjective\nVOCAB: virheellinen | erroneous, incorrect | B1 adjective\nVOCAB: olettamus | assumption | B1 noun\nVOCAB: huolellinen | careful, thorough | B1 adjective\nVOCAB: keskittyä | to focus, concentrate | B1 verb\nVOCAB: strategia | strategy | B1 noun\nVOCAB: menestyä | to succeed, do well | B1 verb\n\nLIFEHACK: "The 10-Minute Rule" — with 6–7 texts in 60 minutes, budget no more than about 10 minutes per text. If you can't find an answer, mark it in your notes and move on rather than losing the whole section's pace.\n\nLIFEHACK: "Start from the End" strategy — since texts get harder toward the end and the last texts usually carry the open-answer questions, many successful candidates start with the LAST three texts first. Reasoning: if you run out of time, guessing a multiple-choice answer (A/B/C) takes seconds, but writing a coherent open answer in Finnish with no time left is nearly impossible. Working backward protects your hardest, most time-costly questions first.\n\nLIFEHACK: Reserve the final 5 minutes of the hour to transfer your True/False and multiple-choice answers onto the official optical answer sheet — don't leave this until there's no time left.\n\nLIFEHACK: There is NO negative marking for wrong answers on YKI — never leave a blank. If you're completely unsure, always choose the most likely option rather than skipping it.`,
+              [
+                (() => { const d = diagnostic([
+                  { q: 'When you finish reading a text, do you usually feel confident about your answers?', options: [
+                    { text: 'Yes, almost always', tier: 'great' },
+                    { text: 'Sometimes — depends on the text', tier: 'ontrack' },
+                    { text: 'Rarely, I often second-guess myself', tier: 'fix' }
+                  ]},
+                  { q: 'Do you read the questions before or after reading the full text?', options: [
+                    { text: 'Always before — I know what to look for', tier: 'great' },
+                    { text: 'Sometimes before, sometimes after', tier: 'ontrack' },
+                    { text: 'Always after — I read the text first', tier: 'fix' }
+                  ]},
+                  { q: 'When you hit an unfamiliar word mid-sentence, what do you do?', options: [
+                    { text: 'Guess from context and keep going', tier: 'great' },
+                    { text: 'Try to guess, but often get stuck anyway', tier: 'ontrack' },
+                    { text: 'Stop and feel lost until I look it up', tier: 'fix' }
+                  ]},
+                  { q: 'How confident are you distinguishing "not stated" from "false"?', options: [
+                    { text: 'Very confident — I rarely mix them up', tier: 'great' },
+                    { text: 'Somewhat — I mix them up occasionally', tier: 'ontrack' },
+                    { text: 'Not confident — I get these wrong a lot', tier: 'fix' }
+                  ]}
+                ]); return d; })(),
+                mc('The reading section (Tekstin ymmärtäminen) includes how many texts, and lasts how long?', [
+                  { text: '3–4 texts, 60–75 minutes', correct: false },
+                  { text: '6–7 texts, 60 minutes', correct: true },
+                  { text: '10 texts, 90 minutes', correct: false }
+                ]),
+                mc('Why does the "Start from the End" strategy recommend tackling the last three texts first?', [
+                  { text: 'Because they are always the easiest', correct: false },
+                  { text: 'Because they usually carry the open-answer questions, which are much harder to complete with no time left than guessing a multiple-choice answer', correct: true },
+                  { text: 'Because the instructions say to read backward', correct: false }
+                ]),
+                tf('There is negative marking on the YKI reading section, so it can be better to leave an answer blank than to guess wrong.', 'false'),
+                fill('Reserve the last ___ minutes of the hour to transfer your answers onto the official optical answer sheet.', '5')
+              ]),
+            S('Section 2 — The Four Text Types',
+              `**Notice (ilmoitus):** what's happening, when, where, what to do.\n\nQUOTE: Taloyhtiön hallitus tiedottaa asukkaille tulevista korjaustöistä ja niiden vaikutuksesta yhteiskäyttötiloihin.\n\n**Personal message:** colloquial forms, emotional tone, causal connectors.\n\n**News (uutinen):** formal kirjakieli, passive voice, facts and figures.\n\n**Instruction (ohje):** obligation constructions, numbered steps, conditionals.\n\nVOCAB: yhteiskäyttötila | shared-use space | B1 compound noun\nVOCAB: velvoittava | binding, obligatory | B1 adjective\nVOCAB: säädös | regulation, statute | B1 formal noun\nVOCAB: tiedote | notice, announcement | official texts\nVOCAB: ilmoitus | notice, ad, listing | B1 noun\nVOCAB: kirjakieli | standard written Finnish | B1 noun\nVOCAB: puhekieli | spoken/colloquial Finnish | B1 noun\nVOCAB: säännöllisesti | regularly | B1 adverb\nVOCAB: käsitellä | to handle, deal with, process | B1 verb\n\nLIFEHACK: Look for the "skeleton" of a notice — WHAT, WHEN, WHERE, ACTION.`,
+              [
+                tf('Passive voice forms like "päätettiin" are a marker typical of the personal message text type.', 'false'),
+                match([
+                  { left: 'velvoittava', right: 'binding, obligatory' },
+                  { left: 'säädös', right: 'regulation, statute' },
+                  { left: 'yhteiskäyttötila', right: 'shared-use space' },
+                  { left: 'olettamus', right: 'assumption' }
+                ]),
+                order(['Taloyhtiön', 'hallitus', 'tiedottaa', 'asukkaille', 'korjaustöistä']),
+                mc('Which text type typically uses the MOST formal register with passive-voice verbs like "päätettiin" or "ilmoitettiin"?', [
+                  { text: 'Personal message (viesti)', correct: false },
+                  { text: 'News item (uutinen)', correct: true },
+                  { text: 'Instruction (ohje)', correct: false }
+                ]),
+                tf('"Kirjakieli" refers to the informal, spoken variety of Finnish you hear in casual conversation.', 'false'),
+                fill('Instructions (ohje) typically use obligation constructions such as "tulee tehdä" or "___ muistaa".', 'pitää'),
+                match([
+                  { left: 'ilmoitus', right: 'notice, ad, listing' },
+                  { left: 'kirjakieli', right: 'standard written Finnish' },
+                  { left: 'puhekieli', right: 'spoken/colloquial Finnish' },
+                  { left: 'käsitellä', right: 'to handle, process' }
+                ]),
+                mc('A text that opens with "Hei! Miten menee?" most likely belongs to which text type?', [
+                  { text: 'Personal message', correct: true },
+                  { text: 'Official instruction', correct: false },
+                  { text: 'News report', correct: false }
+                ])
+              ]),
+            S('Section 3 — Worked Examples',
+              `QUOTE: Taloyhtiön pihalla suoritetaan huoltotöitä, joiden aikana pihan läpikulku on väliaikaisesti estetty. Asukkaita pyydetään siirtämään ajoneuvonsa kadun varteen toimenpiteen ajaksi.\n\nMaintenance work in the courtyard July 14–15, 8:00–16:00. Cars must move to the street. Disabled parking stays in use. Phone contact unavailable during works.\n\nVOCAB: suorittaa | to carry out, perform | B1 formal verb\nVOCAB: väliaikaisesti | temporarily | B1 adverb\nVOCAB: estää | to prevent, block | B1 verb\nVOCAB: toimenpide | measure, procedure | B1 formal noun\nVOCAB: ajoneuvo | vehicle | B1 formal noun\n\nMaria asks Anna to view an apartment on her behalf on Thursday since she has a work shift.\n\nLIFEHACK: Distinguish "not stated" from "implied" — even a logical guess is not the same as a fact stated in the text.`,
+              [
+                tf('The text says the property manager can be reached by phone during the maintenance work.', 'false'),
+                tf('Maria has already seen the apartment herself before asking Anna.', 'notstated'),
+                flash([
+                  { front: 'suorittaa', back: 'to carry out, perform' },
+                  { front: 'väliaikaisesti', back: 'temporarily' },
+                  { front: 'estää', back: 'to prevent, block' },
+                  { front: 'toimenpide', back: 'measure, procedure' },
+                  { front: 'ajoneuvo', back: 'vehicle (formal)' },
+                  { front: 'kosteusvaurio', back: 'moisture damage' }
+                ])
+              ]),
+            S('Section 4 — Trap Recognition & Speed Reading',
+              `The "First 5 Words" method: the opening words of a text predict its type with 80% accuracy.\n\nFour exam traps:\n- Similar but not the same (wrong date/number)\n- Logical but not stated\n- Partial truth\n- Negation of negation (ellei, paitsi)\n\nVOCAB: ellei | unless | trap-signal word\nVOCAB: mikäli | if, in case (formal) | B1 conjunction\nVOCAB: sikäli kuin | insofar as | B1 conjunction\nVOCAB: poikkeuksellisesti | exceptionally | B1 adverb\n\nLIFEHACK: Memorize trap-signal words: ellei, paitsi, poikkeuksena, toisin kuin, sen sijaan, ei kuitenkaan.\n\n**Tips by question format:**\n\n- **Oikein/Väärin (True/False):** pay close attention to limiting/absolute words — *vain* (only), *aina* (always), *ei koskaan* (never). A statement that adds "only" or "always" to something the text describes more loosely is a very common False trap.\n- **Monivalinta (Multiple choice A/B/C):** the correct option is very often a paraphrase of the text's wording, not an exact word-for-word match — don't wait to see the identical phrase.\n- **Avoimet kysymykset (Open questions):** your answer should be brief but grammatically clear. Copying whole sentences or paragraphs straight from the text can be marked down — answer in your own words.\n\nVOCAB: vain | only | limiting word\nVOCAB: aina | always | limiting word\nVOCAB: ei koskaan | never | limiting word\nVOCAB: parafraasi | paraphrase | B1 noun`,
+              [
+                mc('Which trap does this fall into: the text says a fee is fully waived, but the answer option claims it\u2019s "half price"?', [
+                  { text: 'Partial truth', correct: true },
+                  { text: 'Negation of negation', correct: false },
+                  { text: 'Similar but not the same', correct: false }
+                ]),
+                fill('The word "___" means "unless" and often signals a trap in YKI texts.', 'ellei'),
+                flash([
+                  { front: 'ellei', back: 'unless' },
+                  { front: 'mikäli', back: 'if, in case (formal)' },
+                  { front: 'sikäli kuin', back: 'insofar as' },
+                  { front: 'poikkeuksellisesti', back: 'exceptionally' },
+                  { front: 'toisin kuin', back: 'unlike' },
+                  { front: 'sen sijaan', back: 'instead' }
+                ]),
+                openq('Describe a sentence that would use "sikäli kuin" and explain what trap it could set up for a careless reader.'),
+                match([
+                  { left: 'vain', right: 'only' },
+                  { left: 'aina', right: 'always' },
+                  { left: 'ei koskaan', right: 'never' },
+                  { left: 'parafraasi', right: 'paraphrase' }
+                ]),
+                mc('On multiple-choice questions, the correct answer is most often...', [
+                  { text: 'An exact word-for-word copy of a phrase from the text', correct: false },
+                  { text: 'A paraphrase of the text\u2019s meaning in different words', correct: true },
+                  { text: 'Always the longest option', correct: false }
+                ]),
+                tf('It\u2019s a good idea to copy whole sentences from the text when answering an open question, since it guarantees accuracy.', 'false', 'Copying whole sentences/paragraphs can actually be marked down — open answers should be brief and in your own words, while still being grammatically clear.')
+              ]),
+            S('Section 5 — Practice Test & Wrap-up',
+              `QUOTE: Aineiston myöhästymisestä peritään maksu, ellei kyseessä ole lasten kirjallisuus. Palauttamatta jäänyt aineisto katsotaan kadonneeksi kuudenkymmenen päivän kuluttua eräpäivästä.\n\nComprehensive mini-test: a library notice about late fees. Item considered lost after 60 days.\n\nVOCAB: periä | to charge (a fee) | B1 formal verb\nVOCAB: kyseessä oleva | the one in question | B1 formal expression\nVOCAB: katsoa kadonneeksi | to consider lost | B1 formal collocation\n\nFinal checklist:\n- I know the structure of the reading section\n- I can distinguish all 4 text types\n- I can identify a text's type within 5 seconds\n- I know all 4 exam trap types\n- I've completed the mini-test and reviewed mistakes`,
+              [
+                mc('How much is the late fee for adult books, according to the practice text?', [
+                  { text: '€0.10/day', correct: false },
+                  { text: '€0.20/day', correct: true },
+                  { text: 'No fee at all', correct: false }
+                ]),
+                openq('What happens if the material is not returned within 60 days? Answer in Finnish if you can, otherwise in English.'),
+                order(['Aineiston', 'myöhästymisestä', 'peritään', 'maksu', 'ellei', 'kyseessä', 'ole', 'lasten', 'kirjallisuus'])
+              ])
+          ]),
+
+        // ============ LESSON 1.2 ============
+        L('Lesson 1.2 — Skimming & Scanning',
+          `1. Take a Yle Selkouutiset article, read only the headline and first sentence, predict the content, then verify.\n2. Practice scanning: find every number in any Finnish text within 20 seconds.\n3. Time yourself doing the 90-second skimming drill on a new notice.`,
+          [
+            S('Section 1 — Two Reading Modes',
+              `**Skimming** — reading diagonally to grasp the overall topic and structure, without dwelling on details. Used for questions like "What is this text about?"\n\n**Scanning** — searching for one specific piece of information (a date, number, name), ignoring everything else. Used for questions like "What time does the event start?"\n\nThe algorithm: read the questions first (15-20 seconds) — decide which need skimming vs scanning — read the text accordingly — go back and confirm answers in the text, don't rely on memory.\n\nVOCAB: aukioloaika | opening hours | B1 compound noun\nVOCAB: läpikäydä | to go through, review | B1 verb\nVOCAB: keskeinen | central, key | B1 adjective\n\nLIFEHACK: Never read a text linearly start to finish on the exam like a novel — it wastes precious time.`,
+              [
+                mc('Which reading mode is best for the question "What time does the library close on Saturdays?"', [
+                  { text: 'Skimming', correct: false },
+                  { text: 'Scanning', correct: true }
+                ]),
+                fill('Read the ___ before the text, so you know exactly what to look for.', 'questions'),
+                match([
+                  { left: 'aukioloaika', right: 'opening hours' },
+                  { left: 'läpikäydä', right: 'to go through, review' },
+                  { left: 'keskeinen', right: 'central, key' }
+                ])
+              ]),
+            S('Section 2 — Worked Example: Library Schedule Notice',
+              `QUOTE: Kaupunginkirjasto tiedottaa, että kesäkuun alusta lähtien kirjaston aukioloajat muuttuvat. Pääkirjasto on avoinna maanantaista perjantaihin klo 9–18 ja lauantaisin klo 10–15. Sunnuntaisin kirjasto on suljettu koko kesän ajan.\n\nSkimming question: What is this text mainly about? → Changes to the library's summer schedule.\n\nScanning question: Until what time is the library open on weekdays? → 18:00 (6 PM).\n\nVOCAB: muuttua | to change (intransitive) | B1 verb\nVOCAB: suljettu | closed | B1 adjective (past participle)\nVOCAB: henkilökunta | staff, personnel | B1 noun`,
+              [
+                mc('What is this text mainly about?', [
+                  { text: 'New books at the library', correct: false },
+                  { text: 'Changes to the library\u2019s summer opening hours', correct: true },
+                  { text: 'A children\u2019s story hour being cancelled', correct: false }
+                ]),
+                tf('The library is closed on Sundays during the whole summer.', 'true'),
+                flash([
+                  { front: 'muuttua', back: 'to change (intransitive)' },
+                  { front: 'suljettu', back: 'closed' },
+                  { front: 'henkilökunta', back: 'staff, personnel' },
+                  { front: 'aukioloaika', back: 'opening hours' }
+                ])
+              ]),
+            S('Section 3 — Timed Practice: Swimming Pool Notice',
+              `QUOTE: Uimahalli siirtyy elokuusta alkaen uuteen vuorojärjestelmään. Aikuisten uintivuorot ovat arkisin klo 6–8 ja 20–22, muina aikoina halli on pääosin varattu ryhmille. Sisäänpääsymaksu nousee syyskuusta alkaen 6,50 eurosta 7,20 euroon.\n\nSet a 90-second timer, then answer without re-reading: when can adults swim on weekdays, and what happens to the entrance fee in September?\n\nVOCAB: vuorojärjestelmä | shift/schedule system | B1 compound noun\nVOCAB: sisäänpääsymaksu | entrance fee | B1 compound noun\nVOCAB: nousta | to rise, increase | B1 verb\n\nLIFEHACK: The "5-second glance" — before reading any text, train yourself to glance at the headline, first sentence, and last sentence.`,
+              [
+                mc('When can adults swim on weekdays, according to the text?', [
+                  { text: '6–8 and 20–22', correct: true },
+                  { text: 'All day', correct: false },
+                  { text: 'Only 20–22', correct: false }
+                ]),
+                openq('What happens to the entrance fee starting in September? Give the exact old and new price.', '6,50 € → 7,20 €')
+              ])
+          ]),
+
+        // ============ LESSON 1.3 ============
+        L('Lesson 1.3 — Working with Unfamiliar Words',
+          `1. Build a personal list of 20 Finnish suffixes/prefixes with examples.\n2. Take the Section 1 text from Lesson 1.1, underline unfamiliar words, and try to guess 70% of them before checking a dictionary.`,
+          [
+            S('Section 1 — Guessing Meaning from Context',
+              `On the YKI exam there will always be unfamiliar words — that's normal and built into the test design. The goal isn't to translate everything, but to understand ENOUGH to answer the question.\n\nThree sources of clues: neighboring words, grammatical form (suffixes often signal part of speech and meaning), and the overall logic of the text.\n\nFrequent suffixes/prefixes:\nVOCAB: -ton / -tön | "without", absence | e.g. työtön = unemployed\nVOCAB: -llinen | forms an adjective | e.g. luonnollinen = natural\nVOCAB: -uus / -yys | abstract noun | e.g. turvallisuus = safety\nVOCAB: epä- | negation prefix | e.g. epätavallinen = unusual\n\nLIFEHACK: If an unfamiliar word appears in a secondary detail rather than the main subject/verb of a key sentence, it's usually safe to skip it.`,
+              [
+                match([
+                  { left: 'työtön', right: 'unemployed' },
+                  { left: 'luonnollinen', right: 'natural' },
+                  { left: 'turvallisuus', right: 'safety' },
+                  { left: 'epätavallinen', right: 'unusual' }
+                ]),
+                fill('The suffix "___" turns a noun into an adjective, as in "luonnollinen" (natural).', '-llinen'),
+                mc('What should you do when a secondary, non-critical word is unfamiliar?', [
+                  { text: 'Stop and look it up immediately', correct: false },
+                  { text: 'Skip it and keep reading for overall meaning', correct: true },
+                  { text: 'Guess it always changes the answer', correct: false }
+                ])
+              ]),
+            S('Section 2 — Worked Example: Volunteer Notice',
+              `QUOTE: Kaupunki etsii vapaaehtoisia avustamaan iäkkäiden asukkaiden kauppa-asioinnissa. Työstä ei makseta palkkaa, mutta se on erinomainen tapa hyödyttää yhteisöä.\n\nGuess from context: "vapaaehtoinen" (no salary, great way to meet people) → volunteer. "kauppa-asiointi" (go to the store) → shopping errands. "hyödyttää" (suffix -ttää = "to make/cause", root hyöty = benefit) → to benefit.\n\nVOCAB: vapaaehtoinen | volunteer | B1 noun/adjective\nVOCAB: avustaa | to assist, help | B1 verb\nVOCAB: yhteisö | community | B1 noun`,
+              [
+                mc('What does "vapaaehtoinen" mean, based on the context clues in the text?', [
+                  { text: 'Employee', correct: false },
+                  { text: 'Volunteer', correct: true },
+                  { text: 'Manager', correct: false }
+                ]),
+                flash([
+                  { front: 'vapaaehtoinen', back: 'volunteer' },
+                  { front: 'avustaa', back: 'to assist, help' },
+                  { front: 'yhteisö', back: 'community' },
+                  { front: 'hyödyttää', back: 'to benefit' }
+                ])
+              ]),
+            S('Section 3 — Practice: Guess the Word',
+              `Ten practice sentences use unfamiliar words in context — determine meaning using grammar and neighboring words only, without a dictionary:\n\n1. Hän on työtön ja etsii uutta työpaikkaa.\n2. Uusi laki tekee prosessista yksinkertaisemman kaikille hakijoille.\n3. Palvelu on täysin maksuton kaikille asukkaille.\n4. Hakemus tulee jättää viimeistään perjantaina klo 16 mennessä.\n\nVOCAB: hakija | applicant | B1 noun\nVOCAB: yksinkertaistaa | to simplify | B1 verb\nVOCAB: maksuton | free of charge | B1 adjective\n\nLIFEHACK: Try the "closed-field" technique — take a familiar text, cover 10 random words, and try to guess them from context.`,
+              [
+                fill('"Palvelu on täysin ___ kaikille asukkaille" means the service is completely free of charge.', 'maksuton'),
+                openq('Guess the meaning of "yksinkertaisemman" in sentence 2 and explain which clues helped you.', 'simpler — comparative form of yksinkertainen (simple)'),
+                order(['Hakemus', 'tulee', 'jättää', 'viimeistään', 'perjantaina'])
+              ])
+          ]),
+
+        // ============ LESSON 1.4 ============
+        L('Lesson 1.4 — Question Formats & Strategy',
+          `1. Write 3 of your own True/False/Not-stated questions based on any Finnish text.\n2. Complete the mixed practice test without a timer, then again with a 15-minute timer.`,
+          [
+            S('Section 1 — Multiple Choice Strategy',
+              `Rule: first eliminate obviously implausible options, then compare the remaining two against the text word by word.\n\nExam writers often include a "close but wrong" option that reuses words from the text with one changed detail (a date, a number).\n\nVOCAB: vaihtoehto | option, alternative | B1 noun\nVOCAB: sulkea pois | to rule out, exclude | B1 verbal expression\n\nLIFEHACK: If two options both seem plausible, check the smallest detail first — a number, a name, a date — that's usually where they differ.`,
+              [
+                mc('What is the best first step when facing a multiple-choice question?', [
+                  { text: 'Pick the first option that sounds right', correct: false },
+                  { text: 'Eliminate obviously implausible options first', correct: true },
+                  { text: 'Skip to the next question immediately', correct: false }
+                ]),
+                tf('Multiple-choice traps often reuse text wording but change one small detail.', 'true')
+              ]),
+            S('Section 2 — True / False / Not Stated Deep Dive',
+              `The most common source of errors on YKI. Key distinction:\n- **Oikein (True)** — the text explicitly confirms the statement\n- **Väärin (False)** — the text explicitly contradicts the statement\n- **Ei mainita (Not stated)** — the text gives no information on this at all\n\nQUOTE: Kaupungin uusi kirjastoauto aloittaa liikennöinnin syyskuussa. Auto kiertää erityisesti alueita, joissa ei ole kiinteää kirjastoa.\n\nStatement: "Kirjastoautossa on kahvila." → Not stated (the text says nothing about a café — silence is never "false").\n\nVOCAB: liikennöidä | to operate (a route/service) | B1 verb\nVOCAB: kiinteä | fixed, permanent | B1 adjective`,
+              [
+                tf('If the text is completely silent about something, the correct answer is always "false."', 'false'),
+                tf('"Kirjastoautossa on kahvila" (the library bus has a café), given the text says nothing about a café, should be marked as...', 'notstated'),
+                match([
+                  { left: 'Oikein', right: 'The text explicitly confirms it' },
+                  { left: 'Väärin', right: 'The text explicitly contradicts it' },
+                  { left: 'Ei mainita', right: 'The text says nothing about it' }
+                ])
+              ]),
+            S('Section 3 — Matching Format & Mixed Practice',
+              `In matching tasks, look for marker words that map directly to a category: *myydään* (for sale) → classifieds, *etsimme* (we\u2019re looking for) → job posting, *vuokrataan* (for rent) → housing.\n\nQUOTE: Etsimme energistä nuorta avuksi kesätöihin puutarhaan. Myydään hyväkuntoinen lastenvaunu, käytetty vain vähän.\n\nVOCAB: energinen | energetic | B1 adjective\nVOCAB: hyväkuntoinen | in good condition | B1 compound adjective\n\nLIFEHACK: Build a personal list of 15 marker words (myydään, etsimme, tarjoamme, vuokrataan, ilmoittaudu, muistathan, etc.) — they almost always point directly to the category.`,
+              [
+                match([
+                  { left: 'myydään', right: 'for sale' },
+                  { left: 'etsimme', right: 'we are looking for (hiring)' },
+                  { left: 'vuokrataan', right: 'for rent' },
+                  { left: 'tarjoamme', right: 'we offer' }
+                ]),
+                mc('Which text type does "Etsimme energistä nuorta avuksi kesätöihin" belong to?', [
+                  { text: 'Job posting', correct: true },
+                  { text: 'Housing listing', correct: false },
+                  { text: 'For-sale ad', correct: false }
+                ])
+              ])
+          ]),
+
+        // ============ LESSON 1.5 ============
+        L('Lesson 1.5 — Reading Mock Test',
+          `1. Complete both mock texts under a strict 15-minute timer.\n2. Fill in the self-assessment checklist honestly and note which trap types you fell for.`,
+          [
+            S('Section 1 — Mock Text: New Recycling Point',
+              `QUOTE: Kaupunki avaa ensi kuussa uuden kierrätyspisteen Länsimäen alueelle. Pisteessä voi kierrättää paperia, kartonkia, lasia, metallia ja pieniä sähkölaitteita. Isokokoiset esineet, kuten huonekalut, tulee edelleen viedä suurempaan kierrätyskeskukseen. Piste on avoinna joka päivä klo 7–21, eikä sinne tarvita erillistä lupaa tai avainta.\n\nVOCAB: kierrätyspiste | recycling point | B1 compound noun\nVOCAB: sähkölaite | electrical appliance | B1 compound noun\nVOCAB: erillinen | separate, distinct | B1 adjective`,
+              [
+                mc('What CAN be recycled at the new Länsimäki point?', [
+                  { text: 'Large furniture', correct: false },
+                  { text: 'Paper, cardboard, glass, metal, small appliances', correct: true },
+                  { text: 'Only paper', correct: false }
+                ]),
+                tf('"A separate key is needed to use the recycling point."', 'false'),
+                openq('Where must large items like furniture be taken instead, according to the text?', 'to a larger recycling center')
+              ]),
+            S('Section 2 — Mock Text: Neighborhood Cleanup Message',
+              `QUOTE: Järjestämme pihatalkoot lauantaina 20.7. klo 10 alkaen. Tarkoituksena on siistiä yhteispihaa, haravoida ja istuttaa uusia kukkia pihan reunustalle. Kaupunki lahjoittaa meille kukkien siemenet, mutta tarvitsemme omia työkaluja. Talkoiden jälkeen tarjoillaan grillimakkaraa ja mehua pihalla.\n\nVOCAB: talkoot | communal volunteer work | B1 cultural noun\nVOCAB: haravoida | to rake | B1 verb\nVOCAB: lahjoittaa | to donate | B1 verb`,
+              [
+                mc('What is planned at the cleanup event?', [
+                  { text: 'Tidying the yard, raking, and planting flowers', correct: true },
+                  { text: 'Building a new playground', correct: false },
+                  { text: 'Painting the building', correct: false }
+                ]),
+                fill('The city donates the ___, but participants need to bring their own tools.', 'seeds'),
+                tf('Participants must bring their own food.', 'false')
+              ]),
+            S('Section 3 — Self-Assessment & Wrap-up',
+              `Final checklist:\n- I stayed within the 15-minute time limit\n- I understood the overall meaning of both texts (skimming)\n- I found details quickly (scanning)\n- I didn't confuse "false" with "not stated"\n- Unfamiliar words didn't derail my reading\n\nModule 1 Reading (Lessons 1.1–1.5) is now complete. Continue to Lesson 1.6 for the Listening half of the module.`,
+              [
+                openq('Which trap type (from Lesson 1.1, Section 4) caused you the most trouble across this module? Give one specific example.'),
+                order(['Kaupunki', 'avaa', 'ensi', 'kuussa', 'uuden', 'kierrätyspisteen'])
+              ])
+          ]),
+
+        // ============ LESSON 1.6 ============
+        L('Lesson 1.6 — Colloquial Finnish Features',
+          `1. Build a personal glossary of 20 colloquial forms.\n2. Find a Finnish vlog on YouTube and try to catch 5 colloquial forms you hear.`,
+          [
+            S('Section 1 — Kirjakieli vs. Puhekieli',
+              `The Finnish you hear in YKI listening tasks often differs from "book Finnish" (kirjakieli). Spoken Finnish (puhekieli) has shortened forms, blended speech, different word order.\n\nVOCAB: mä, mun, mulla | minä, minun, minulla (I, my, at my place) | colloquial pronoun forms\nVOCAB: sä, sun, sulla | sinä, sinun, sinulla (you, your, at your place) | colloquial pronoun forms\nVOCAB: oon, oot | olen, olet (I am, you are) | colloquial verb forms\nVOCAB: en tiiä | en tiedä (I don\u2019t know) | colloquial contraction`,
+              [
+                match([
+                  { left: 'mä', right: 'minä (I)' },
+                  { left: 'sä', right: 'sinä (you)' },
+                  { left: 'oon', right: 'olen (I am)' },
+                  { left: 'en tiiä', right: 'en tiedä (I don\u2019t know)' }
+                ]),
+                mc('Which register do YKI listening tasks typically use?', [
+                  { text: 'Formal written Finnish only', correct: false },
+                  { text: 'Natural spoken Finnish, including colloquial forms', correct: true },
+                  { text: 'Only textbook dialogue', correct: false }
+                ])
+              ]),
+            S('Section 2 — Worked Dialogue: Grocery Request',
+              `QUOTE: Mä oon just tulossa kauppaan, tarviiksä jotain? — Joo, ostaisitko mulle maitoa ja leipää? Mul ei oo tänään aikaa käydä ite.\n\nBreakdown: "mä oon" = minä olen; "tarviiksä" = tarvitsetko sinä; "mul ei oo" = minulla ei ole.\n\nVOCAB: tarvita | to need | B1 verb (colloquial: tarviiks)\nVOCAB: kevytmaito | low-fat milk | B1 compound noun\nVOCAB: tarjouksessa | on special offer | B1 expression`,
+              [
+                mc('What does "tarviiksä" mean in standard Finnish?', [
+                  { text: 'tarvitsetko sinä (do you need)', correct: true },
+                  { text: 'tarvitsen minä (I need)', correct: false },
+                  { text: 'tarvitaanko (is it needed)', correct: false }
+                ]),
+                flash([
+                  { front: 'mä oon', back: 'minä olen (I am)' },
+                  { front: 'tarviiksä', back: 'tarvitsetko sinä (do you need)' },
+                  { front: 'mul ei oo', back: 'minulla ei ole (I don\u2019t have)' },
+                  { front: 'kevytmaito', back: 'low-fat milk' }
+                ])
+              ]),
+            S('Section 3 — Practice: Rewrite Colloquial to Formal',
+              `Rewrite these colloquial phrases into standard (kirjakieli) Finnish:\n1. Mä en tiiä missä mun avaimet on.\n2. Sä oot ihan oikeessa.\n3. Meil ei oo tänään mitään suunnitelmii.\n\nVOCAB: avain | key | B1 noun\nVOCAB: suunnitelma | plan | B1 noun\n\nLIFEHACK: Filler words like "tota, niinku, siis" carry no real meaning — train yourself to ignore them rather than trying to translate every syllable.`,
+              [
+                fill('"Mä en tiiä" in standard Finnish is "Minä en ___".', 'tiedä'),
+                openq('Rewrite "Meil ei oo tänään mitään suunnitelmii" into standard kirjakieli Finnish.', 'Meillä ei ole tänään mitään suunnitelmia')
+              ])
+          ]),
+
+        // ============ LESSON 1.7 ============
+        L('Lesson 1.7 — Note-taking Technique',
+          `1. Find a short Finnish audio (announcement or news, 1-2 minutes) and take notes using the keyword method.\n2. Compare your notes to the full transcript — what did you miss?`,
+          [
+            S('Section 1 — The Keyword Method',
+              `You cannot write full sentences during listening. The goal is to capture KEY WORDS you can use to reconstruct meaning: numbers, times, places, names, actions (verbs). Skip articles, conjunctions, filler words.\n\nAbbreviation system:\nVOCAB: → | "then", "leads to" | notation symbol\nVOCAB: klo | time marker (already an abbreviation in Finnish) | notation\nVOCAB: € | money, price | notation symbol`,
+              [
+                match([
+                  { left: '→', right: '"then" / "leads to"' },
+                  { left: 'klo', right: 'time marker' },
+                  { left: '€', right: 'money / price' }
+                ]),
+                mc('What should you prioritize writing down while listening?', [
+                  { text: 'Every single word verbatim', correct: false },
+                  { text: 'Numbers, times, places, names, and key actions', correct: true },
+                  { text: 'Only adjectives', correct: false }
+                ])
+              ]),
+            S('Section 2 — Worked Example: Train Announcement',
+              `QUOTE: Hyvät matkustajat, juna Helsinkiin lähtee raiteelta 5 kello 14.35, ei kello 14.15 kuten aikataulussa oli merkitty. Matkustajat, joilla on liput Turkuun, huomioikaa, että juna lähtee raiteelta 8, lähtöaika 15.10.\n\nGood notes: "Helsinki: track 5, 14.35 (not 14.15) / Turku: track 8, 15.10"\n\nVOCAB: matkustaja | passenger | B1 noun\nVOCAB: raide | (train) track, platform | B1 noun\nVOCAB: merkitty | marked, indicated | B1 past participle`,
+              [
+                mc('From which track does the Helsinki train leave?', [
+                  { text: 'Track 5', correct: true },
+                  { text: 'Track 8', correct: false },
+                  { text: 'Track 15', correct: false }
+                ]),
+                fill('The Turku train\u2019s departure time changed to ___.', '15.10')
+              ]),
+            S('Section 3 — Practice: Mall Announcement',
+              `QUOTE: Kauppakeskus on avoinna tänään poikkeuksellisesti klo 10–22 kesäalennusten vuoksi. Toisessa kerroksessa järjestetään lasten tapahtuma kello 13–15. Parkkihalli on ilmainen tänään kaikille asiakkaille.\n\nTry the keyword method: note down the key facts before checking the answer.\n\nVOCAB: poikkeuksellisesti | exceptionally | B1 adverb\nVOCAB: kesäalennus | summer sale | B1 compound noun\nVOCAB: parkkihalli | parking garage | B1 compound noun`,
+              [
+                openq('Using the keyword method, list the 3 most important facts from this announcement.', 'open 10-22, kids event 13-15, free parking'),
+                order(['Kauppakeskus', 'on', 'avoinna', 'tänään', 'poikkeuksellisesti'])
+              ])
+          ]),
+
+        // ============ LESSON 1.8 ============
+        L('Lesson 1.8 — Listening Task Types',
+          `1. Listen to one Yle Areena episode and identify: dialogue, announcement, news, or voicemail? Write down 3 key facts.`,
+          [
+            S('Section 1 — Four Listening Formats',
+              `**Dialogue (keskustelu)** — two speakers; **Announcement (kuulutus)** — public address; **News (uutinen)** — radio/TV segment; **Voicemail (puhelinvastaaja)** — recorded message.\n\nIn dialogues: track who proposes what, who agrees/disagrees, and the FINAL decision — plans often change mid-conversation.\n\nVOCAB: keskustelu | conversation, dialogue | B1 noun\nVOCAB: kuulutus | public announcement | B1 noun\nVOCAB: puhelinvastaaja | answering machine, voicemail | B1 compound noun`,
+              [
+                match([
+                  { left: 'keskustelu', right: 'dialogue' },
+                  { left: 'kuulutus', right: 'public announcement' },
+                  { left: 'puhelinvastaaja', right: 'voicemail' }
+                ]),
+                mc('In a dialogue task, what matters most if the plan changes mid-conversation?', [
+                  { text: 'The very first thing said', correct: false },
+                  { text: 'The final agreed decision', correct: true },
+                  { text: 'Whoever speaks the loudest', correct: false }
+                ])
+              ]),
+            S('Section 2 — Worked Dialogue: Weekend Plans',
+              `QUOTE: Haluaisitko lähteä ensi viikonloppuna mökille? — Kuulostaa kivalta, mutta mulla on lauantaina serkun synttärit... Entä jos me mentäisiin sunnuntaina sen sijaan? — Sunnuntai käy mulle hyvin.\n\nKey point: the plan shifts from Saturday to Sunday during the conversation — listening only to the start would give the wrong answer.\n\nVOCAB: mökki | summer cottage | B1 cultural noun\nVOCAB: synttärit | birthday (colloquial) | B1 colloquial noun\nVOCAB: sen sijaan | instead | B1 adverbial expression`,
+              [
+                mc('When do they end up going to the cottage?', [
+                  { text: 'Saturday morning', correct: false },
+                  { text: 'Sunday morning', correct: true },
+                  { text: 'Saturday night', correct: false }
+                ]),
+                tf('The original plan was for Sunday from the very start of the conversation.', 'false')
+              ]),
+            S('Section 3 — Worked Voicemail: Dental Clinic',
+              `QUOTE: Olet soittanut hammaslääkäriasema Hymyyn. Vastaanottomme on avoinna arkisin klo 8–16. Jos asiasi on kiireellinen, soita päivystysnumeroon. Muussa tapauksessa jätä nimesi ja numerosi äänimerkin jälkeen.\n\nVOCAB: vastaanotto | reception, clinic | B1 noun\nVOCAB: kiireellinen | urgent | B1 adjective\nVOCAB: päivystysnumero | emergency/on-call number | B1 compound noun`,
+              [
+                mc('What should you do if your matter is urgent, according to the voicemail?', [
+                  { text: 'Leave a message after the tone', correct: false },
+                  { text: 'Call the emergency/on-call number', correct: true },
+                  { text: 'Visit in person immediately', correct: false }
+                ]),
+                fill('The clinic is open on weekdays from 8 to ___.', '16')
+              ])
+          ]),
+
+        // ============ LESSON 1.9 ============
+        L('Lesson 1.9 — First vs. Second Listen Strategy',
+          `1. Apply the two-listen protocol to any Finnish audio: first pass for the overall picture, second pass for details.\n2. Try shadowing — listen to a short phrase and repeat it aloud immediately.`,
+          [
+            S('Section 1 — The Two-Listen Protocol',
+              `Most YKI listening tasks play the audio TWICE. First listen: grasp the overall situation, who's speaking, where, roughly what about — don't try to catch every word. Second listen: confirm specific details (numbers, times, conditions), and double-check uncertain answers.\n\nVOCAB: käsitys | understanding, impression | B1 noun\nVOCAB: vahvistaa | to confirm | B1 verb\n\nLIFEHACK: If you miss a word during the first listen, mark it with "?" mentally and move on — don't let it derail the next few sentences.`,
+              [
+                mc('What should you focus on during the FIRST listen?', [
+                  { text: 'Every specific number and detail', correct: false },
+                  { text: 'The overall situation and structure', correct: true },
+                  { text: 'Grammar mistakes in the speaker\u2019s Finnish', correct: false }
+                ]),
+                order(['Toinen', 'kuuntelu', 'on', 'yksityiskohtia', 'varten'])
+              ]),
+            S('Section 2 — Worked Example: Café Order',
+              `QUOTE: Haluaisitko kahvin? — Joo kiitos, mutta ei maitoa, olen laktoositon. — Entä sokeria? — Yksi pieni lusikallinen riittää.\n\nFirst listen: café scene, ordering coffee. Second listen: confirm — no milk (lactose intolerant), one small spoon of sugar.\n\nVOCAB: laktoositon | lactose-free / lactose intolerant | B1 adjective\nVOCAB: lusikallinen | a spoonful | B1 noun\nVOCAB: riittää | to be enough, suffice | B1 verb`,
+              [
+                mc('What kind of coffee is made for the customer?', [
+                  { text: 'With milk, no sugar', correct: false },
+                  { text: 'No milk, a little sugar', correct: true },
+                  { text: 'No milk, no sugar', correct: false }
+                ]),
+                flash([
+                  { front: 'laktoositon', back: 'lactose-free / lactose intolerant' },
+                  { front: 'lusikallinen', back: 'a spoonful' },
+                  { front: 'riittää', back: 'to be enough, suffice' }
+                ])
+              ]),
+            S('Section 3 — Practice: Applying the Protocol',
+              `Take any 1-2 minute Finnish audio clip. Apply the protocol: 1st listen — write general impressions only. 2nd listen — fill in specific details. Compare what you captured in each round.\n\nVOCAB: yleisvaikutelma | overall impression | B1 compound noun\nVOCAB: yksityiskohta | detail | B1 noun`,
+              [
+                openq('Describe one moment where the second listen changed or corrected your understanding from the first listen.'),
+                tf('It is efficient to try to catch every single word already on the first listen.', 'false')
+              ])
+          ]),
+
+        // ============ LESSON 1.10 ============
+        L('Lesson 1.10 — Listening Mock Test & Module Wrap-up',
+          `1. Complete the combined mock test (2 texts + 2 audio scripts) under realistic time pressure.\n2. Review your personal report and note what to focus on before Module 2 (Writing).`,
+          [
+            S('Section 1 — Mock Dialogue: Dentist Appointment',
+              `QUOTE: Moi Sanna, oletko sä jo varannut ajan hammaslääkärille? — En vielä, unohdin ihan kokonaan. — Mun aika on ensi tiistaina, voisin siirtää sen jos sä haluat tulla samalla kertaa. — Olisi kiva, jos me mentäisiin yhdessä! Soitatko sä ja kysyt?\n\nVOCAB: varata aika | to book an appointment | B1 verbal expression\nVOCAB: unohtaa | to forget | B1 verb`,
+              [
+                tf('Sanna has already booked a dentist appointment.', 'false'),
+                mc('What does Sanna hope for, by the end of the conversation?', [
+                  { text: 'To go to the dentist together with her friend', correct: true },
+                  { text: 'To cancel the appointment entirely', correct: false },
+                  { text: 'To go alone as originally planned', correct: false }
+                ]),
+                openq('Who will make the phone call to check if a joint appointment is possible?', 'the first speaker (A)')
+              ]),
+            S('Section 2 — Mock Announcement: Store Closing Early',
+              `QUOTE: Hyvät asiakkaat, kauppa sulkeutuu tänään poikkeuksellisesti kello 19 normaalin kello 21 sijaan henkilökunnan koulutustilaisuuden vuoksi. Kassoilla ei oteta enää käteistä vastaan kello 18.45 jälkeen.\n\nVOCAB: koulutustilaisuus | training event | B1 compound noun\nVOCAB: käteinen | cash | B1 noun`,
+              [
+                mc('What time does the store close today?', [
+                  { text: '21:00 (normal hours)', correct: false },
+                  { text: '19:00 (earlier than usual)', correct: true },
+                  { text: '18:45', correct: false }
+                ]),
+                fill('Cash payments stop being accepted after ___.', '18.45'),
+                tf('The store is closing early because of a public holiday.', 'false')
+              ]),
+            S('Section 3 — Final Checklist & Module Resources',
+              `Final Module 1 checklist:\n- I stay within timing on both reading and listening sections\n- I confidently distinguish Oikein / Väärin / Ei mainita\n- I understand basic colloquial Finnish (puhekieli)\n- I can take notes efficiently while listening\n- I completed the combined mock test at or above my target level\n\nResources for continued practice: oph.fi (official YKI samples), Yle Areena / Yle Uutiset selkosuomeksi, InfoFinland.fi. Recommendation: 15-20 minutes of reading + 10 minutes of listening per day outside this course.`,
+              [
+                openq('Looking back across all of Module 1, which single skill (reading trap recognition, colloquial listening, or note-taking) do you most want to strengthen before Module 2?'),
+                flash([
+                  { front: 'ellei', back: 'unless' },
+                  { front: 'sikäli kuin', back: 'insofar as' },
+                  { front: 'suorittaa', back: 'to carry out, perform' },
+                  { front: 'vahvistaa', back: 'to confirm' },
+                  { front: 'käteinen', back: 'cash' },
+                  { front: 'koulutustilaisuus', back: 'training event' }
+                ])
+              ])
+          ])
+        ]; // end raw
+
+        const [l11, l12, l13, l14, l15, l16, l17, l18, l19, l110] = raw;
+
+        const bankTopics = [
+
+        L('Topic 1 — Koti ja asuminen (Home & Housing)',
+          `1. Find a real housing notice (ilmoitus) online and identify its genre and key facts.\n2. Write your own 4-sentence notice about a made-up building issue.`,
+          [
+            S('Text 1 — Notice (ilmoitus): Broken Elevator',
+              `QUOTE: Taloyhtiön hissi on tilapäisesti epäkunnossa teknisen vian vuoksi. Korjaus on tilattu ja hissin arvioidaan olevan käytössä jälleen torstaina. Ylimpien kerrosten asukkaita pyydetään varautumaan portaiden käyttöön tänä aikana. Pahoittelemme aiheutunutta haittaa.\n\nThe building's elevator is temporarily out of order due to a technical fault. Repairs have been ordered and it's expected to be working again on Thursday. Residents on upper floors are asked to be prepared to use the stairs.\n\nVOCAB: epäkunnossa | out of order | B1 expression\nVOCAB: tilata | to order (a service/repair) | B1 verb\nVOCAB: arvioida | to estimate | B1 verb\nVOCAB: varautua | to prepare for, be ready for | B1 verb`,
+              [
+                tf('The elevator is expected to be working again on Thursday.', 'true'),
+                mc('What are upper-floor residents asked to do?', [
+                  { text: 'Move out temporarily', correct: false },
+                  { text: 'Be prepared to use the stairs', correct: true },
+                  { text: 'Pay for the repair themselves', correct: false }
+                ]),
+                openq('Why is the elevator out of order, according to the notice?', 'a technical fault')
+              ]),
+            S('Text 2 — Letter (kirje): About Noise',
+              `QUOTE: Hei naapuri, toivon että voit auttaa pienessä asiassa. Yläkerrastanne kuuluu iltaisin melko kovaa musiikkia, joka häiritsee unta. Olisiko mahdollista pitää musiikki hiljaisempana kello 22 jälkeen? Kiitos ymmärryksestä jo etukäteen.\n\nA resident writes to their upstairs neighbor asking them to keep music quieter after 10 PM, since it's disturbing their sleep.\n\nVOCAB: häiritä | to disturb | B1 verb\nVOCAB: hiljainen | quiet | B1 adjective\nVOCAB: ymmärrys | understanding | B1 noun`,
+              [
+                tf('The writer is complaining about loud music during the daytime.', 'false'),
+                mc('What does the writer ask the neighbor to do?', [
+                  { text: 'Move to a different apartment', correct: false },
+                  { text: 'Keep the music quieter after 10 PM', correct: true },
+                  { text: 'Stop playing music entirely', correct: false }
+                ]),
+                openq('What effect is the loud music having on the writer, according to the letter?', 'it disturbs their sleep')
+              ])
+          ]),
+
+        L('Topic 2 — Vapaa-aika ja harrastukset (Leisure & Hobbies)',
+          `1. Look up a hobby club near you and note its genre-style description.\n2. Write a short notice inviting people to a hobby of your choice.`,
+          [
+            S('Text 1 — Notice (ilmoitus): Hobby Club Sign-up',
+              `QUOTE: Uusi valokuvausklubi aloittaa toimintansa syyskuussa. Kokoonnumme joka toinen keskiviikko kirjaston kokoustilassa kello 18. Klubi sopii sekä aloittelijoille että kokeneemmille harrastajille. Ilmoittaudu mukaan sähköpostitse ennen elokuun loppua.\n\nA new photography club starts in September, meeting every other Wednesday at the library. It's suitable for both beginners and more experienced hobbyists. Sign-up is by email before the end of August.\n\nVOCAB: aloittelija | beginner | B1 noun\nVOCAB: kokenut | experienced | B1 adjective\nVOCAB: ilmoittautua | to sign up, register | B1 verb`,
+              [
+                tf('The photography club is only for experienced photographers.', 'false'),
+                mc('How often does the club meet?', [
+                  { text: 'Every Wednesday', correct: false },
+                  { text: 'Every other Wednesday', correct: true },
+                  { text: 'Once a month', correct: false }
+                ]),
+                openq('By when must interested people sign up, and how?', 'by the end of August, via email')
+              ]),
+            S('Text 2 — Article (artikkeli): Popular Finnish Hobbies',
+              `QUOTE: Tuoreen tutkimuksen mukaan suomalaisten suosituimpia harrastuksia ovat liikunta, lukeminen ja käsityöt. Erityisesti nuorten aikuisten keskuudessa myös digitaaliset pelit ja striimauksen seuraaminen ovat kasvattaneet suosiotaan viime vuosina.\n\nAccording to a recent study, the most popular hobbies among Finns are exercise, reading, and handicrafts. Among young adults specifically, digital games and watching streams have grown in popularity in recent years.\n\nVOCAB: tutkimus | study, research | B1 noun\nVOCAB: käsityö | handicraft | B1 noun\nVOCAB: kasvattaa suosiotaan | to grow in popularity | B1 collocation`,
+              [
+                tf('The study found that handicrafts are among the most popular hobbies in Finland.', 'true'),
+                mc('Which group is specifically mentioned as increasingly interested in digital games and streaming?', [
+                  { text: 'Retirees', correct: false },
+                  { text: 'Young adults', correct: true },
+                  { text: 'School children', correct: false }
+                ]),
+                openq('Name the three most popular hobbies mentioned in the article.', 'exercise, reading, and handicrafts')
+              ])
+          ]),
+
+        L('Topic 3 — Ruoka ja juoma (Food & Drink)',
+          `1. Find a Finnish recipe online and identify the imperative verb forms used.\n2. Write 3 steps of a simple recipe using "ensin, sitten, lopuksi".`,
+          [
+            S('Text 1 — Instruction (ohje): Simple Recipe',
+              `QUOTE: Keitä perunat kypsiksi suolatussa vedessä noin 20 minuuttia. Valuta vesi pois ja lisää voita sekä tilliä. Sekoita varovasti ja tarjoile heti kuumana pääruoan lisukkeena.\n\nBoil the potatoes in salted water for about 20 minutes until tender. Drain the water and add butter and dill. Mix gently and serve immediately as a hot side dish.\n\nVOCAB: keittää | to boil | B1 verb\nVOCAB: valuttaa | to drain | B1 verb\nVOCAB: lisuke | side dish | B1 noun`,
+              [
+                tf('The potatoes should be boiled for about 20 minutes.', 'true'),
+                mc('What should be added after draining the water?', [
+                  { text: 'Butter and dill', correct: true },
+                  { text: 'Milk and sugar', correct: false },
+                  { text: 'Salt only', correct: false }
+                ]),
+                openq('How should the dish be served, according to the recipe?', 'immediately, hot, as a side dish')
+              ]),
+            S('Text 2 — News (uutinen): Local Food Festival',
+              `QUOTE: Kaupungin ruokafestivaali järjestetään tänä vuonna kolmatta kertaa torilla elokuun toisena viikonloppuna. Paikalla on yli 40 ruokamyyjää tarjoamassa niin paikallisia herkkuja kuin kansainvälistä keittiötä. Tapahtuma on maksuton kaikille kävijöille.\n\nThe city's food festival is being held for the third time this year, on the market square on the second weekend of August. Over 40 food vendors will offer both local delicacies and international cuisine. The event is free for all visitors.\n\nVOCAB: myyjä | vendor, seller | B1 noun\nVOCAB: herkku | delicacy, treat | B1 noun\nVOCAB: maksuton | free of charge | B1 adjective`,
+              [
+                tf('This is the first time the food festival is being held.', 'false'),
+                mc('How much does it cost to attend the festival?', [
+                  { text: 'It is free', correct: true },
+                  { text: '10 euros', correct: false },
+                  { text: 'Price varies by vendor', correct: false }
+                ]),
+                openq('Approximately how many food vendors will be at the festival?', 'over 40')
+              ])
+          ]),
+
+        L('Topic 4 — Matkustaminen (Travel)',
+          `1. Find a real Finnish train or bus schedule notice and note any exceptions mentioned.\n2. Write a short postcard-style message about an imaginary trip.`,
+          [
+            S('Text 1 — Notice (tiedote): Train Schedule Change',
+              `QUOTE: Rautatieyhtiö tiedottaa, että ratatöiden vuoksi osa junavuoroista Tampereen ja Helsingin välillä peruuntuu ensi viikolla. Matkustajia kehotetaan tarkistamaan lähtöajat etukäteen verkkosivuilta. Korvaavia bussivuoroja on tarjolla peruuntuneiden junien tilalle.\n\nThe railway company announces that due to track works, some train services between Tampere and Helsinki will be cancelled next week. Passengers are advised to check departure times online in advance. Replacement bus services are offered instead of the cancelled trains.\n\nVOCAB: ratatyö | track work | B1 compound noun\nVOCAB: peruuntua | to be cancelled | B1 verb\nVOCAB: korvaava | replacement, substitute | B1 adjective`,
+              [
+                tf('All train services between Tampere and Helsinki are cancelled indefinitely.', 'false'),
+                mc('What is offered instead of the cancelled trains?', [
+                  { text: 'Nothing, passengers must wait', correct: false },
+                  { text: 'Replacement bus services', correct: true },
+                  { text: 'A refund only', correct: false }
+                ]),
+                openq('Why are some train services being cancelled next week?', 'due to track works')
+              ]),
+            S('Text 2 — Letter (kirje): A Postcard from a Trip',
+              `QUOTE: Terve! Olemme nyt viikon verran matkustaneet Lapissa. Eilen näimme revontulet ensimmäistä kertaa elämässämme — se oli aivan uskomatonta! Huomenna jatkamme matkaa pohjoisemmaksi ja yövymme lasi-iglussa.\n\nA traveler writes home describing a week-long trip in Lapland, including seeing the northern lights for the first time and plans to continue north to sleep in a glass igloo.\n\nVOCAB: revontulet | northern lights | B1 noun (plural)\nVOCAB: uskomaton | unbelievable, incredible | B1 adjective\nVOCAB: yöpyä | to spend the night | B1 verb`,
+              [
+                tf('The writer has seen the northern lights before on a previous trip.', 'false'),
+                mc('Where will the writer sleep the next night?', [
+                  { text: 'In a hotel', correct: false },
+                  { text: 'In a glass igloo', correct: true },
+                  { text: 'On a train', correct: false }
+                ]),
+                openq('How long have they been traveling in Lapland so far?', 'about a week')
+              ])
+          ]),
+
+        L('Topic 5 — Palvelut ja asiointi (Services & Errands)',
+          `1. Look up how to book an appointment with a real Finnish public service online.\n2. Write step-by-step instructions for a made-up bureaucratic process.`,
+          [
+            S('Text 1 — Instruction (ohje): Booking a Kela Appointment',
+              `QUOTE: Ajanvaraus Kelan palveluun onnistuu helpoiten verkossa osoitteessa kela.fi. Kirjaudu sisään pankkitunnuksilla ja valitse sopiva palvelupiste sekä vapaa aika. Voit myös perua tai siirtää varatun ajan samasta palvelusta tarvittaessa.\n\nBooking an appointment with Kela is easiest done online. Log in with your bank credentials and select a suitable office and available time. You can also cancel or reschedule the booked appointment through the same service if needed.\n\nVOCAB: ajanvaraus | appointment booking | B1 compound noun\nVOCAB: kirjautua sisään | to log in | B1 verbal expression\nVOCAB: siirtää | to reschedule, move | B1 verb`,
+              [
+                tf('Appointments with Kela can only be booked by calling on the phone.', 'false'),
+                mc('What do you need to log in to the booking service?', [
+                  { text: 'A passport number', correct: false },
+                  { text: 'Bank credentials', correct: true },
+                  { text: 'A printed form', correct: false }
+                ]),
+                openq('What two things can you do with an already-booked appointment, according to the text?', 'cancel it or reschedule it')
+              ]),
+            S('Text 2 — Notice (ilmoitus): Bank Branch Closing',
+              `QUOTE: Pankkimme keskustan konttori suljetaan pysyvästi ensi kuun alusta digitaalisten palveluiden lisääntyneen käytön vuoksi. Asiakkaita palvellaan jatkossa verkkopankissa sekä puhelimitse. Lähin avoinna oleva konttori sijaitsee kauppakeskuksessa.\n\nThe bank's downtown branch will close permanently from the start of next month due to increased use of digital services. Customers will continue to be served through online banking and by phone. The nearest remaining open branch is located in the shopping center.\n\nVOCAB: konttori | (bank) branch office | B1 noun\nVOCAB: pysyvästi | permanently | B1 adverb\nVOCAB: lisääntynyt | increased | B1 adjective (past participle)`,
+              [
+                tf('The branch is closing temporarily for renovations.', 'false'),
+                mc('Why is the branch closing, according to the notice?', [
+                  { text: 'Increased use of digital services', correct: true },
+                  { text: 'Lack of staff', correct: false },
+                  { text: 'A change in ownership', correct: false }
+                ]),
+                openq('Where is the nearest remaining open branch located?', 'in the shopping center')
+              ])
+          ]),
+
+        L('Topic 6 — Koulutus (Education)',
+          `1. Find a real school or adult-education registration notice online.\n2. Write 3 sentences about a made-up course you'd like to take.`,
+          [
+            S('Text 1 — Notice (tiedote): School Registration',
+              `QUOTE: Ensi syksynä koulunsa aloittavien lasten ilmoittautuminen alkaa maaliskuussa. Huoltajien tulee täyttää sähköinen lomake kaupungin verkkosivuilla ja liittää mukaan tarvittavat asiakirjat. Ilmoittautumisaika päättyy huhtikuun puolivälissä.\n\nRegistration for children starting school next autumn begins in March. Guardians must fill out an electronic form on the city's website and attach the required documents. The registration period ends in mid-April.\n\nVOCAB: huoltaja | guardian, parent | B1 noun\nVOCAB: asiakirja | document | B1 noun\nVOCAB: ilmoittautumisaika | registration period | B1 compound noun`,
+              [
+                tf('Guardians must submit the registration in person at the school office.', 'false'),
+                mc('When does the registration period end?', [
+                  { text: 'End of March', correct: false },
+                  { text: 'Mid-April', correct: true },
+                  { text: 'End of August', correct: false }
+                ]),
+                openq('What must guardians attach to the electronic form?', 'the required documents')
+              ]),
+            S('Text 2 — Article (artikkeli): Adult Education Opportunities',
+              `QUOTE: Yhä useampi aikuinen palaa opiskelemaan uuden ammatin pariin keskellä työuraansa. Kansanopistot ja ammattikorkeakoulut tarjoavat joustavia opiskelumuotoja, jotka sopivat myös työn ohessa opiskeluun. Moni kokee uudelleenkouluttautumisen parantavan työllistymismahdollisuuksiaan.\n\nMore and more adults are returning to study a new profession in the middle of their careers. Folk high schools and universities of applied sciences offer flexible study formats suited to studying alongside work. Many feel that retraining improves their employment prospects.\n\nVOCAB: ammattikorkeakoulu | university of applied sciences | B1 compound noun\nVOCAB: joustava | flexible | B1 adjective\nVOCAB: uudelleenkouluttautua | to retrain | B1 verb`,
+              [
+                tf('The article says adult retraining is becoming less common.', 'false'),
+                mc('What do many adults believe retraining improves?', [
+                  { text: 'Their social life', correct: false },
+                  { text: 'Their employment prospects', correct: true },
+                  { text: 'Their physical health', correct: false }
+                ]),
+                openq('Name one type of institution mentioned that offers flexible study formats for adults.', 'a folk high school (kansanopisto) or a university of applied sciences (ammattikorkeakoulu)')
+              ])
+          ]),
+
+        L('Topic 7 — Terveys ja hyvinvointi (Health & Wellbeing)',
+          `1. Find real vaccination or health-service instructions online in Finnish.\n2. Write 3 sentences of advice for staying healthy in winter.`,
+          [
+            S('Text 1 — Instruction (ohje): Flu Vaccination',
+              `QUOTE: Kausi-influenssarokotus on suositeltava erityisesti yli 65-vuotiaille sekä pitkäaikaissairaille. Rokotuksen voi ottaa maksutta terveyskeskuksessa ilman ajanvarausta lokakuun ja joulukuun välisenä aikana. Rokote suojaa yleensä useiden kuukausien ajan.\n\nThe seasonal flu vaccine is especially recommended for people over 65 and those with chronic illnesses. It can be received free of charge at the health center without an appointment between October and December. The vaccine generally provides protection for several months.\n\nVOCAB: rokotus | vaccination | B1 noun\nVOCAB: pitkäaikaissairas | person with a chronic illness | B1 compound noun\nVOCAB: suojata | to protect | B1 verb`,
+              [
+                tf('An appointment is required to get the flu vaccine.', 'false'),
+                mc('Who is the vaccine especially recommended for?', [
+                  { text: 'Children under 5', correct: false },
+                  { text: 'People over 65 and those with chronic illness', correct: true },
+                  { text: 'Only healthcare workers', correct: false }
+                ]),
+                openq('During which months can the vaccine be received, according to the text?', 'between October and December')
+              ]),
+            S('Text 2 — News (uutinen): New Health Center Opens',
+              `QUOTE: Kaupunkiin avataan ensi kuussa uusi terveyskeskus, joka helpottaa erityisesti itäisen alueen asukkaiden pääsyä palveluihin. Keskuksessa työskentelee aluksi kymmenen lääkäriä ja useita hoitajia. Ajanvaraus onnistuu puhelimitse tai verkossa avaamisesta lähtien.\n\nA new health center will open in the city next month, making it easier for residents of the eastern area to access services. Initially, ten doctors and several nurses will work there. Appointments can be booked by phone or online starting from the opening.\n\nVOCAB: helpottaa | to make easier, ease | B1 verb\nVOCAB: lääkäri | doctor | B1 noun\nVOCAB: hoitaja | nurse | B1 noun`,
+              [
+                tf('The new health center is intended to help residents of the western area specifically.', 'false'),
+                mc('How many doctors will initially work at the new center?', [
+                  { text: 'Five', correct: false },
+                  { text: 'Ten', correct: true },
+                  { text: 'Twenty', correct: false }
+                ]),
+                openq('How can appointments be booked once the center opens?', 'by phone or online')
+              ])
+          ]),
+
+        L('Topic 8 — Työ (Work)',
+          `1. Find a real Finnish job posting online and note its structure.\n2. Write a short email to a colleague about a schedule change.`,
+          [
+            S('Text 1 — Notice (ilmoitus): Job Posting',
+              `QUOTE: Etsimme iloista ja oma-aloitteista henkilöä asiakaspalvelutehtäviin kahvilaamme. Työaika on osa-aikainen ja sopii hyvin esimerkiksi opiskelijalle. Aiempi kokemus alalta on eduksi mutta ei välttämätöntä. Hae paikkaa lähettämällä vapaamuotoinen hakemus sähköpostitse.\n\nWe are looking for a cheerful, self-motivated person for customer service tasks at our café. The working hours are part-time, well suited for example to a student. Previous experience in the field is an advantage but not required. Apply by sending a free-form application by email.\n\nVOCAB: oma-aloitteinen | self-motivated, proactive | B1 adjective\nVOCAB: osa-aikainen | part-time | B1 adjective\nVOCAB: eduksi | an advantage | B1 expression`,
+              [
+                tf('Previous experience is strictly required for this job.', 'false'),
+                mc('What kind of position is being advertised?', [
+                  { text: 'Full-time office manager', correct: false },
+                  { text: 'Part-time customer service at a café', correct: true },
+                  { text: 'Remote software developer', correct: false }
+                ]),
+                openq('How should interested applicants apply, according to the notice?', 'by sending a free-form application via email')
+              ]),
+            S('Text 2 — Letter (kirje): Email About a Schedule Change',
+              `QUOTE: Hei Maija, haluaisin ilmoittaa, että ensi viikon tiimipalaveri siirtyy keskiviikolta torstaille aikataulumuutosten vuoksi. Kellonaika pysyy samana eli kello 10. Ole hyvä ja välitä tieto myös muille tiimin jäsenille.\n\nAn employee informs a colleague that next week's team meeting is moving from Wednesday to Thursday due to schedule changes, though the time remains the same (10 AM), and asks them to pass the information on to the rest of the team.\n\nVOCAB: tiimipalaveri | team meeting | B1 compound noun\nVOCAB: aikataulumuutos | schedule change | B1 compound noun\nVOCAB: välittää tieto | to pass on information | B1 collocation`,
+              [
+                tf('The meeting time is also changing, not just the day.', 'false'),
+                mc('To which day is the meeting moving?', [
+                  { text: 'Tuesday', correct: false },
+                  { text: 'Thursday', correct: true },
+                  { text: 'Friday', correct: false }
+                ]),
+                openq('What is Maija asked to do at the end of the message?', 'pass the information on to the other team members')
+              ])
+          ]),
+
+        L('Topic 9 — Yhteiskunta ja ajankohtaiset asiat (Society & Current Affairs)',
+          `1. Find a real Finnish news article about a local policy change.\n2. Write 3 sentences summarizing your opinion on a civic topic.`,
+          [
+            S('Text 1 — News (uutinen): New City Recycling Law',
+              `QUOTE: Kaupunginvaltuusto hyväksyi eilen uuden säädöksen, joka velvoittaa kaikki yli kymmenen asunnon taloyhtiöt järjestämään biojätteen erilliskeräyksen ensi vuoden alusta. Päätöksen tavoitteena on vähentää sekajätteen määrää merkittävästi.\n\nThe city council approved a new regulation yesterday requiring all housing companies with more than ten apartments to organize separate biowaste collection starting next year. The decision aims to significantly reduce the amount of mixed waste.\n\nVOCAB: kaupunginvaltuusto | city council | B1 compound noun\nVOCAB: velvoittaa | to obligate, require | B1 verb\nVOCAB: erilliskeräys | separate collection | B1 compound noun`,
+              [
+                tf('The new regulation applies to all housing companies regardless of size.', 'false'),
+                mc('What does the new regulation require larger housing companies to do?', [
+                  { text: 'Organize separate biowaste collection', correct: true },
+                  { text: 'Reduce electricity use', correct: false },
+                  { text: 'Install solar panels', correct: false }
+                ]),
+                openq('What is the stated goal of this new decision?', 'to significantly reduce the amount of mixed waste')
+              ]),
+            S('Text 2 — Article (artikkeli): Civic Participation',
+              `QUOTE: Yhä useampi kaupunki tarjoaa asukkailleen mahdollisuuden osallistua päätöksentekoon osallistuvan budjetoinnin kautta. Asukkaat voivat ehdottaa ja äänestää hankkeista, joihin osa kaupungin budjetista käytetään. Malli on lisännyt erityisesti nuorten kiinnostusta paikallispolitiikkaa kohtaan.\n\nMore and more cities are offering residents the chance to participate in decision-making through participatory budgeting. Residents can propose and vote on projects that a portion of the city budget will be used for. The model has particularly increased young people's interest in local politics.\n\nVOCAB: osallistua | to participate | B1 verb\nVOCAB: päätöksenteko | decision-making | B1 compound noun\nVOCAB: äänestää | to vote | B1 verb`,
+              [
+                tf('Participatory budgeting allows residents only to propose projects, not vote on them.', 'false'),
+                mc('Whose interest in local politics has particularly increased, according to the article?', [
+                  { text: 'Retirees', correct: false },
+                  { text: 'Young people', correct: true },
+                  { text: 'Business owners', correct: false }
+                ]),
+                openq('What can residents do through participatory budgeting, according to the article?', 'propose and vote on projects funded by part of the city budget')
+              ])
+          ])
+        ]; // end bankTopics
+
+        const bankSections = bankTopics.flatMap(t => t.sections.map(s => ({ ...s, title: t.title.replace(/^Topic \d+ — /, '') + ' — ' + s.title })));
+
+        const workedDrills = [
+          S('Worked Analysis — Mielipide (Opinion): Noisy Restaurant Guests',
+            `QUOTE: Kävin viime viikolla ravintolassa syömässä yhdessä ystäväni kanssa. Vieressämme istui iso seurue, joka puhui koko illan ajan hyvin äänekkäästi ja nauroi kovaan ääneen. Huomautimme asiasta kerran tarjoilijalle, mutta mikään ei muuttunut. Seurue jatkoi meluamista aina siihen asti, kunnes he itse lähtivät noin tunnin kuluttua. En ymmärrä, miksi ravintolan henkilökunta ei puuttunut tilanteeseen tarpeeksi jämäkästi. Toivon, että jatkossa ravintolat ottaisivat vastuun viihtyisästä ilmapiiristä kaikkien asiakkaiden kohdalla, eikä vain niiden, jotka valittavat.\n\nThe writer dined at a restaurant with a friend; a large loud group nearby kept disturbing them all evening. A complaint to the waiter changed nothing, and the group left on their own about an hour later. The writer wishes restaurants would take more responsibility for a pleasant atmosphere for everyone, not just those who complain.\n\nVOCAB: seurue | a group/party (of people) | B1 noun\nVOCAB: huomauttaa | to point out, remark | B1 verb\nVOCAB: jämäkästi | firmly, assertively | B1 adverb\n\nLIFEHACK: In this text, "itse lähtivät" (they left on their own) is the single word that decides statement 3 below — miss "itse" and you'll answer wrong.`,
+            [
+              tf('Kirjoittaja meni ravintolaan yksin.', 'false', 'The text explicitly says "yhdessä ystäväni kanssa" (together with my friend) — a direct contradiction, not just missing info.'),
+              tf('Seurue lopetti meluamisen heti, kun tarjoilijalle huomautettiin.', 'false', 'The text says "mikään ei muuttunut" (nothing changed) — a direct contradiction of the statement.'),
+              tf('Seurue poistui ravintolasta omasta aloitteestaan.', 'true', 'The key word "itse" in "he itse lähtivät" (they themselves left) confirms this was voluntary, not forced.'),
+              tf('Kirjoittaja vaatii rahojaan takaisin.', 'notstated', 'The text never mentions a refund at all — even though it would seem logical, "not stated" is correct because the text is simply silent on it.'),
+              tf('Kirjoittaja toivoo, että ravintolat puuttuisivat häiriöihin aktiivisemmin jatkossa.', 'true', 'Directly confirmed by the final sentence: "toivon, että jatkossa ravintolat ottaisivat vastuun..."')
+            ]),
+          S('Worked Analysis — Uutinen (News): City Bike-Share Popularity',
+            `QUOTE: Kaupungin uusi pyöränjakojärjestelmä on osoittautunut suositummaksi kuin osattiin odottaa. Ensimmäisen kuukauden aikana pyöriä käytettiin yli 50 000 kertaa, mikä ylitti kaupungin oman tavoitteen selvästi. Erityisesti nuoret aikuiset ovat ottaneet järjestelmän omakseen työmatkoillaan. Kaupunki suunnittelee nyt asemien määrän kaksinkertaistamista ensi vuoteen mennessä. Osa asukkaista on kuitenkin toivonut, että pyöriä huollettaisiin useammin, sillä muutama rikkinäinen pyörä on herättänyt turhautumista.\n\nThe city's new bike-share system proved more popular than expected — over 50,000 rides in the first month, especially among young adults commuting to work. The city plans to double the number of stations by next year. Some residents want more frequent maintenance since a few broken bikes caused frustration.\n\nVOCAB: osoittautua | to prove to be, turn out | B1 verb\nVOCAB: ylittää tavoite | to exceed a target | B1 collocation\nVOCAB: kaksinkertaistaa | to double | B1 verb`,
+            [
+              tf('Pyöriä käytettiin ensimmäisen kuukauden aikana yli 50 000 kertaa.', 'true', 'Directly stated: "yli 50 000 kertaa" in the first month.'),
+              tf('Kaupunki aikoo vähentää asemien määrää ensi vuonna.', 'false', 'The text says the opposite: stations will be doubled ("kaksinkertaistamista"), not reduced.'),
+              tf('Enimmäkseen eläkeläiset käyttävät kaupunkipyöriä työmatkoihinsa.', 'false', 'The text names young adults ("nuoret aikuiset"), not retirees, as the main users.'),
+              tf('Kaikki kaupunkipyörät ovat tällä hetkellä täysin kunnossa.', 'false', 'The text mentions broken bikes causing frustration — a direct contradiction.'),
+              tf('Pyöräasemien käyttö tulee maksamaan asiakkaille enemmän ensi vuonna.', 'notstated', 'Price is never mentioned in the text at all.')
+            ]),
+          S('Worked Analysis — Tiedote (Notice): Water Shut-off',
+            `QUOTE: Taloyhtiön vesijohtoverkossa tehdään huoltotöitä ensi torstaina kello 9–15, minkä ajaksi vesi joudutaan katkaisemaan koko rakennuksesta. Suosittelemme varaamaan tarvittavan määrän vettä etukäteen. Katkoksen aikana myös lämmin käyttövesi on poissa käytöstä. Työt pyritään saamaan valmiiksi aikataulun mukaisesti, mutta pahimmassa tapauksessa katko voi jatkua illan puolelle.\n\nWater maintenance work next Thursday 9–15 will require shutting off water to the entire building; residents are advised to stockpile water in advance. Hot water will also be unavailable. Work should finish on schedule, but in the worst case the shut-off could extend into the evening.\n\nVOCAB: katkaista | to cut off, disconnect | B1 verb\nVOCAB: varata | to reserve, set aside | B1 verb\nVOCAB: pahimmassa tapauksessa | in the worst case | B1 expression`,
+            [
+              tf('Vesikatko koskee vain osaa rakennuksesta.', 'false', 'The text says the whole building ("koko rakennuksesta") will be affected, not just part of it.'),
+              tf('Katkon aikana ei ole saatavilla lämmintä vettä.', 'true', 'Directly stated: hot water is also unavailable during the shut-off.'),
+              tf('Asukkaita kehotetaan varaamaan vettä etukäteen.', 'true', 'Directly recommended in the text.'),
+              tf('Katko kestää varmasti tasan kuusi tuntia.', 'false', '"Pahimmassa tapauksessa... illan puolelle" means it could run longer — it is not guaranteed to be exactly 6 hours.'),
+              tf('Huoltotyön kustannukset veloitetaan asukkailta erikseen.', 'notstated', 'The text never mentions billing or costs to residents.')
+            ]),
+          S('Worked Analysis — Ilmoitus (Notice/Ad): Lost Cat',
+            `QUOTE: Etsimme kadonnutta kissaa nimeltä Musti. Musti on musta, valkorintainen ja hieman ujo vieraille ihmisille. Se katosi kotoamme Kalliossa viime perjantaina illalla eikä ole sen jälkeen näkynyt. Mustilla on pantti kaulassa, jossa on yhteystietomme. Jos näet kissan tai tiedät sen olinpaikasta, ota rohkeasti yhteyttä. Tarjoamme löytäjälle pienen kiitokseksi tarkoitetun palkkion.\n\nA missing cat named Musti — black with a white chest, a bit shy with strangers — disappeared from Kallio last Friday evening. Musti wears a collar with contact info. Anyone with information is asked to reach out; a small reward is offered.\n\nVOCAB: valkorintainen | white-chested | B1 compound adjective\nVOCAB: pantti | collar, tag | B1 noun\nVOCAB: palkkio | reward | B1 noun`,
+            [
+              tf('Musti on kokonaan musta kissa ilman valkoista väriä.', 'false', 'The text says "valkorintainen" (white-chested) — so the cat is not entirely black.'),
+              tf('Kissa katosi Kalliosta perjantai-iltana.', 'true', 'Directly stated in the text.'),
+              tf('Mustilla ei ole minkäänlaista tunnistetta kaulassaan.', 'false', 'The text says Musti has a collar with contact info — the opposite of the statement.'),
+              tf('Löytäjälle luvataan pieni palkkio.', 'true', 'Directly stated at the end of the text.'),
+              tf('Kissan omistajat ovat tällä hetkellä ulkomailla.', 'notstated', 'The text never mentions the owners\u2019 location or travel.')
+            ]),
+          S('Worked Analysis — Ohje (Instruction): Waste Sorting',
+            `QUOTE: Lajittele kotitaloutesi jätteet oikein: biojäte kuuluu ruskeaan astiaan, pakkausmuovi omaansa ja paperi sekä kartonki niille varattuihin keräyksiin. Lasi- ja metallijätteet viedään lähimpään ekopisteeseen, sillä niitä ei kerätä suoraan kotitalouksista tässä kaupunginosassa. Muista huuhdella pakkaukset kevyesti ennen lajittelua. Sekajätteeseen kuuluvat vain ne roskat, joita ei voi kierrättää millään muulla tavalla.\n\nSort your household waste correctly: biowaste in the brown bin, plastic packaging separately, paper and cardboard to their designated collections. Glass and metal must be taken to the nearest eco-point, since they aren't collected directly from households in this district. Rinse packaging lightly before sorting. Only waste that truly cannot be recycled any other way goes in mixed waste.\n\nVOCAB: lajitella | to sort | B1 verb\nVOCAB: ekopiste | eco/recycling point | B1 compound noun\nVOCAB: huuhdella | to rinse | B1 verb`,
+            [
+              tf('Lasijäte kerätään suoraan kotitalouksista tässä kaupunginosassa.', 'false', 'The text says the opposite: glass must be taken to the nearest eco-point, it is not collected from homes.'),
+              tf('Pakkaukset kannattaa huuhdella ennen lajittelua.', 'true', 'Directly recommended in the text.'),
+              tf('Biojäte laitetaan ruskeaan astiaan.', 'true', 'Directly stated in the text.'),
+              tf('Sekajätteeseen saa laittaa vain sellaista jätettä, jota ei voi kierrättää muuten.', 'true', 'This matches the text\u2019s final sentence precisely.'),
+              tf('Metallijäte noudetaan kotoa erillisellä kyydillä pyynnöstä.', 'notstated', 'The text never mentions any pickup service for metal waste.')
+            ]),
+          S('Worked Analysis — Mielipide (Opinion): Long Renovation Next Door',
+            `QUOTE: Naapurini ovat remontoineet asuntoaan jo kolmatta kuukautta, ja porakoneen ääni kuuluu lähes joka arkipäivä aamusta iltapäivään. Ymmärrän, että remontteja täytyy tehdä, mutta toivoisin, että niistä ilmoitettaisiin naapureille etukäteen edes lapulla porraskäytävässä. Itse sain tietää remontista vasta, kun se oli jo alkanut. Onneksi melu on pysynyt taloyhtiön sääntöjen mukaisilla kellonajoilla, joten en ole halunnut valittaa asiasta virallisesti.\n\nThe writer's neighbors have been renovating for close to three months, with drilling noise almost every weekday. The writer wishes renovations were announced in advance, even just with a note in the stairwell — they only found out once it had already started. Fortunately the noise has stayed within the building's allowed hours, so they haven't wanted to file an official complaint.\n\nVOCAB: porakone | power drill | B1 noun\nVOCAB: etukäteen | in advance | B1 adverb\nVOCAB: valittaa virallisesti | to file an official complaint | B1 collocation`,
+            [
+              tf('Remontti on kestänyt yli kaksi kuukautta.', 'true', '"Jo kolmatta kuukautta" (already into the third month) means more than two months have passed.'),
+              tf('Kirjoittaja sai etukäteen ilmoituksen remontista lapulla porraskäytävässä.', 'false', 'The text says the opposite: they found out only after the renovation had already started.'),
+              tf('Remontin äänet ovat kuuluneet sallittujen kellonaikojen ulkopuolella.', 'false', 'The text says the noise has stayed within the building\u2019s allowed hours — the opposite of the statement.'),
+              tf('Kirjoittaja on tehnyt virallisen valituksen taloyhtiölle.', 'false', 'The text explicitly says they have NOT wanted to complain officially.'),
+              tf('Naapuri remontoi asunnon keittiötä.', 'notstated', 'The text never specifies which room is being renovated.')
+            ])
+        ];
+
+        const allBankSections = bankSections.concat(workedDrills);
+
+        function pickType(sections, type) {
+          return sections.map(s => ({ id: uid(), title: s.title, body: s.body, exercises: (s.exercises || []).filter(e => e.type === type) })).filter(s => s.exercises.length > 0);
+        }
+        const oikeinVaarinSections = pickType(allBankSections, 'tf');
+        const monivalintaSections = pickType(allBankSections, 'mc');
+        const avoimetSections = pickType(allBankSections, 'open');
+
+        return [
+          l11,
+          { id: uid(), title: 'Lesson 1.2 — Reading Strategies & Techniques', homework: [l12, l13, l14].map(l => l.homework).join('\n\n'), sections: [...l12.sections, ...l13.sections, ...l14.sections] },
+          { id: uid(), title: 'Lesson 1.3a — Oikein vai väärin (Reading Bank)', homework: 'Read each text and decide if the statements are true (Oikein), false (Väärin), or not stated (Ei mainita). Check the explanation after each answer — it points to the exact word or phrase that decides the answer.', sections: oikeinVaarinSections },
+          { id: uid(), title: 'Lesson 1.3b — Monivalinta (Reading Bank)', homework: 'Read each text and choose the correct answer from three options (A, B, C). Remember: the correct option is usually a paraphrase of the text, not an identical copy of its wording.', sections: monivalintaSections },
+          { id: uid(), title: 'Lesson 1.3c — Avoimet kysymykset (Reading Bank)', homework: 'Read each text and answer the open question in your own words — brief but grammatically clear. Copying whole sentences from the text is not a strong answer.', sections: avoimetSections },
+          { id: uid(), title: 'Lesson 1.4 — Listening Task Types (Bank)', homework: [l16, l17, l18].map(l => l.homework).join('\n\n'), sections: [...l16.sections, ...l17.sections, ...l18.sections] },
+          { ...l19, title: 'Lesson 1.5 — First vs. Second Listen Strategy' },
+          { id: uid(), title: 'Lesson 1.6 — Reading & Listening Mock Test + Module Wrap-up', homework: [l15, l110].map(l => l.homework).join('\n\n'), sections: [...l15.sections, ...l110.sections] }
+        ];
+      })()
+    }]
+  };
+}
+// ==================== END SEED CONTENT ====================
+
+let course = null;
+let progress = {};
+let state = { moduleId: null, lessonId: null, sectionId: null, mode: 'edit', showHomework: false, editingExerciseId: null };
+let ephemeral = {};
+
+async function loadState() {
+  try { const c = await window.storage.get('yki_course', false); course = c ? JSON.parse(c.value) : seedCourse(); } catch (e) { course = seedCourse(); }
+  try { const p = await window.storage.get('yki_progress', false); progress = p ? JSON.parse(p.value) : {}; } catch (e) { progress = {}; }
+  state.moduleId = course.modules[0]?.id || null;
+  state.lessonId = course.modules[0]?.lessons[0]?.id || null;
+  state.sectionId = course.modules[0]?.lessons[0]?.sections[0]?.id || null;
+}
+async function saveCourse() { try { await window.storage.set('yki_course', JSON.stringify(course), false); } catch (e) { console.error(e); } }
+async function saveProgress() { try { await window.storage.set('yki_progress', JSON.stringify(progress), false); } catch (e) { console.error(e); } }
+
+function getModule() { return course.modules.find(m => m.id === state.moduleId); }
+function getLesson() { const m = getModule(); return m ? m.lessons.find(l => l.id === state.lessonId) : null; }
+function getSection() { const l = getLesson(); return l ? l.sections.find(s => s.id === state.sectionId) : null; }
+
+function exerciseIsDone(ex) {
+  const p = progress[ex.id]; if (!p) return false;
+  if (ex.type === 'match') return p.status === 'complete';
+  if (ex.type === 'flash') return p.status === 'complete';
+  if (ex.type === 'diagnostic') return p.status === 'complete';
+  return true;
+}
+function lessonProgressStats(lesson) {
+  let total = 0, done = 0;
+  for (const sec of lesson.sections) for (const ex of (sec.exercises || [])) { total++; if (exerciseIsDone(ex)) done++; }
+  return { total, done };
+}
+function moduleProgressStats(mod) {
+  let total = 0, done = 0;
+  for (const lesson of mod.lessons) { const s = lessonProgressStats(lesson); total += s.total; done += s.done; }
+  return { total, done };
+}
+function sectionAllDone(sec) { const exs = sec.exercises || []; return exs.length > 0 && exs.every(ex => exerciseIsDone(ex)); }
+
+function renderAll() { renderTopPickers(); renderProgressRing(); renderModuleProgress(); renderSectionList(); renderMain(); renderCrumb(); }
+function renderCrumb() { const m = getModule(), l = getLesson(); document.getElementById('lessonCrumb').textContent = `${m ? m.title : ''} · ${l ? l.title : ''}`; }
+function renderTopPickers() {
+  const modSel = document.getElementById('moduleSelect');
+  modSel.innerHTML = course.modules.map(m => `<option value="${m.id}" ${m.id===state.moduleId?'selected':''}>${escapeHtml(m.title)}</option>`).join('');
+  const m = getModule();
+  const lesSel = document.getElementById('lessonSelect');
+  lesSel.innerHTML = m ? m.lessons.map(l => `<option value="${l.id}" ${l.id===state.lessonId?'selected':''}>${escapeHtml(l.title)}</option>`).join('') : '';
+}
+function renderModuleProgress() {
+  const m = getModule(); const el = document.getElementById('moduleProgressBar');
+  if (!m) { el.innerHTML = ''; return; }
+  const { total, done } = moduleProgressStats(m);
+  const pct = total ? Math.round((done/total)*100) : 0;
+  el.innerHTML = `📚 Module total: ${done}/${total} exercises (${pct}%)`;
+}
+function renderProgressRing() {
+  const l = getLesson(); const wrap = document.getElementById('progressRingWrap');
+  if (!l) { wrap.innerHTML = ''; return; }
+  const { total, done } = lessonProgressStats(l);
+  const pct = total ? Math.round((done/total)*100) : 0;
+  const r = 19, circ = 2 * Math.PI * r; const offset = circ - (pct/100)*circ;
+  wrap.innerHTML = `
+    <svg class="progress-ring" width="46" height="46" viewBox="0 0 46 46">
+      <circle cx="23" cy="23" r="${r}" fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="5"/>
+      <circle cx="23" cy="23" r="${r}" fill="none" stroke="#E8A33D" stroke-width="5" stroke-dasharray="${circ}" stroke-dashoffset="${offset}" stroke-linecap="round" transform="rotate(-90 23 23)"/>
+    </svg>
+    <div class="progress-text"><b>${pct}%</b><br>${done} of ${total} exercises</div>
+  `;
+}
+function renderSectionList() {
+  const l = getLesson(); const list = document.getElementById('sectionList');
+  if (!l) { list.innerHTML = ''; return; }
+  list.innerHTML = l.sections.map((sec, idx) => {
+    const isActive = sec.id === state.sectionId && !state.showHomework;
+    const done = sectionAllDone(sec);
+    return `
+      <div class="section-item ${isActive ? 'active' : ''} ${done ? 'done' : ''}" data-section-id="${sec.id}">
+        <span class="step-num" data-action="select" data-id="${sec.id}">${done ? '✓' : idx+1}</span>
+        <span class="title" data-action="select" data-id="${sec.id}">${escapeHtml(sec.title)}</span>
+        <span class="handle" data-action="up" data-id="${sec.id}" title="Move up">↑</span>
+        <span class="menu-dots" data-action="delete" data-id="${sec.id}" title="Delete">✕</span>
+      </div>
+    `;
+  }).join('');
+}
+function renderMain() {
+  const main = document.getElementById('mainContent'); const lesson = getLesson();
+  if (!lesson) { main.innerHTML = '<div class="empty-state">No lessons yet. Add a module or lesson.</div>'; return; }
+  if (state.showHomework) { renderHomeworkView(main, lesson); return; }
+  const sec = getSection();
+  if (!sec) { main.innerHTML = '<div class="empty-state">Select a section on the left, or create a new one.</div>'; return; }
+  if (state.mode === 'edit') renderEditView(main, sec); else renderStudyView(main, sec);
+}
+function renderHomeworkView(main, lesson) {
+  main.innerHTML = `
+    <div class="content-header"><h2 class="section-title-view">📌 For homework</h2></div>
+    ${state.mode === 'edit' ? `<textarea class="body-editor" id="homeworkEditor" style="min-height:180px;">${escapeHtml(lesson.homework || '')}</textarea>` : renderBody(lesson.homework)}
+  `;
+  if (state.mode === 'edit') document.getElementById('homeworkEditor').addEventListener('input', (e) => { lesson.homework = e.target.value; saveCourse(); });
+}
+function renderEditView(main, sec) {
+  main.innerHTML = `
+    <div class="content-header">
+      <input class="section-title-input" id="sectionTitleInput" value="${escapeHtml(sec.title)}">
+      <button class="btn btn-danger-ghost btn-sm" id="deleteSectionBtn">Delete section</button>
+    </div>
+    <textarea class="body-editor" id="bodyEditor" placeholder="Plain text, **bold**, lines starting with - for lists. LIFEHACK: ... QUOTE: ... VOCAB: word | translation | note"></textarea>
+    <div class="editor-hint">Markup: <b>LIFEHACK:</b> — lifehack card · <b>QUOTE:</b> — example-text card · <b>VOCAB: fi | en | note</b> — word cards (consecutive lines merge into a grid)</div>
+    <div class="exercises-wrap">
+      <div class="exercises-heading">Exercises (${(sec.exercises||[]).length})</div>
+      <div id="exercisesList"></div>
+      ${state.editingExerciseId === 'new' ? renderExerciseBuilder(null) : `<div class="add-exercise-card" id="addExerciseCard">+ Add exercise</div>`}
+    </div>
+  `;
+  const bodyEditor = document.getElementById('bodyEditor');
+  bodyEditor.value = sec.body || '';
+  document.getElementById('sectionTitleInput').addEventListener('input', (e) => { sec.title = e.target.value; renderSectionList(); renderCrumb(); saveCourse(); });
+  bodyEditor.addEventListener('input', (e) => { sec.body = e.target.value; saveCourse(); });
+  document.getElementById('deleteSectionBtn').addEventListener('click', () => deleteSection(sec.id));
+
+  const exList = document.getElementById('exercisesList');
+  exList.innerHTML = (sec.exercises || []).map(ex => renderExerciseEditCard(ex)).join('');
+  (sec.exercises || []).forEach(ex => {
+    const editBtn = document.querySelector(`[data-edit-ex="${ex.id}"]`);
+    const delBtn = document.querySelector(`[data-del-ex="${ex.id}"]`);
+    if (editBtn) editBtn.addEventListener('click', () => { state.editingExerciseId = ex.id; renderMain(); });
+    if (delBtn) delBtn.addEventListener('click', () => { sec.exercises = sec.exercises.filter(e => e.id !== ex.id); saveCourse(); renderMain(); renderSectionList(); });
+  });
+  if (state.editingExerciseId && state.editingExerciseId !== 'new') {
+    const ex = (sec.exercises || []).find(e => e.id === state.editingExerciseId);
+    if (ex) { const c = document.createElement('div'); c.innerHTML = renderExerciseBuilder(ex); exList.appendChild(c.firstElementChild); }
+  }
+  const addCard = document.getElementById('addExerciseCard');
+  if (addCard) addCard.addEventListener('click', () => { state.editingExerciseId = 'new'; renderMain(); });
+  wireBuilderForm(sec);
+}
+
+const TYPE_LABELS = { mc: 'Multiple choice', tf: 'True / False / Not stated', open: 'Open question', flash: 'Swipe flashcards', match: 'Match pairs', fill: 'Fill in the blank', order: 'Word order', diagnostic: 'Reading habits check' };
+const TYPE_TAGCLASS = { mc: 'tag-mc', tf: 'tag-tf', open: 'tag-open', flash: 'tag-flash', match: 'tag-match', fill: 'tag-fill', order: 'tag-order', diagnostic: 'tag-diag' };
+
+function renderExerciseEditCard(ex) {
+  if (state.editingExerciseId === ex.id) return '';
+  let qText = ex.question || ex.statement || ex.text || '';
+  if (ex.type === 'flash') qText = `${ex.cards.length} cards: ${ex.cards.map(c=>c.front).join(', ')}`;
+  if (ex.type === 'match') qText = `${ex.pairs.length} pairs: ${ex.pairs.map(p=>p.left).join(', ')}`;
+  if (ex.type === 'order') qText = ex.words.join(' ');
+  if (ex.type === 'diagnostic') qText = `${ex.questions.length}-question reading habits check with personalized feedback`;
+  return `
+    <div class="exercise-card">
+      <span class="exercise-type-tag ${TYPE_TAGCLASS[ex.type]}">${TYPE_LABELS[ex.type]}</span>
+      <div class="exercise-q">${escapeHtml(qText)}</div>
+      <div style="display:flex; gap:8px; margin-top:8px;">
+        <button class="btn btn-sm" data-edit-ex="${ex.id}">Edit</button>
+        <button class="btn btn-sm btn-danger-ghost" data-del-ex="${ex.id}">Delete</button>
+      </div>
+    </div>
+  `;
+}
+
+function renderExerciseBuilder(ex) {
+  const type = ex ? ex.type : 'mc';
+  const options = ex && ex.options ? ex.options : [{text:'',correct:true},{text:'',correct:false}];
+  const cards = ex && ex.cards ? ex.cards : [{front:'',back:''},{front:'',back:''}];
+  const pairs = ex && ex.pairs ? ex.pairs : [{left:'',right:''},{left:'',right:''}];
+  const orderSentence = ex && ex.words ? ex.words.join(' ') : '';
+  return `
+    <div class="exercise-card" id="builderCard">
+      <div class="builder-form">
+        <label>Exercise type</label>
+        <select id="builderType">
+          <option value="mc" ${type==='mc'?'selected':''}>Multiple choice</option>
+          <option value="tf" ${type==='tf'?'selected':''}>True / False / Not stated</option>
+          <option value="open" ${type==='open'?'selected':''}>Open question</option>
+          <option value="flash" ${type==='flash'?'selected':''}>Swipe flashcards (Quizlet-style)</option>
+          <option value="match" ${type==='match'?'selected':''}>Match pairs</option>
+          <option value="fill" ${type==='fill'?'selected':''}>Fill in the blank</option>
+          <option value="order" ${type==='order'?'selected':''}>Word order</option>
+        </select>
+
+        <div id="fld-mc" style="display:${type==='mc'?'flex':'none'}; flex-direction:column; gap:10px;">
+          <label>Question</label>
+          <input type="text" id="builderQuestion" value="${escapeHtml(ex?.question || '')}">
+          <label>Answer options (mark the correct one)</label>
+          <div id="optionsWrap">${options.map((o,i) => `<div class="option-edit-row"><input type="radio" name="correctOpt" value="${i}" ${o.correct?'checked':''}><input type="text" data-opt-idx="${i}" value="${escapeHtml(o.text)}" placeholder="Option ${i+1}"></div>`).join('')}</div>
+          <button class="btn btn-sm" id="addOptionBtn" type="button">+ Option</button>
+        </div>
+
+        <div id="fld-tf" style="display:${type==='tf'?'flex':'none'}; flex-direction:column; gap:10px;">
+          <label>Statement</label>
+          <input type="text" id="builderStatement" value="${escapeHtml(ex?.statement || '')}">
+          <label>Correct answer</label>
+          <select id="builderTfAnswer">
+            <option value="true" ${ex?.answer==='true'?'selected':''}>True</option>
+            <option value="false" ${ex?.answer==='false'?'selected':''}>False</option>
+            <option value="notstated" ${ex?.answer==='notstated'?'selected':''}>Not stated</option>
+          </select>
+        </div>
+
+        <div id="fld-open" style="display:${type==='open'?'flex':'none'}; flex-direction:column; gap:10px;">
+          <label>Question</label>
+          <input type="text" id="builderOpenQuestion" value="${escapeHtml(ex?.question || '')}">
+          <label>Answer key (optional, for self-check)</label>
+          <input type="text" id="builderOpenAnswer" value="${escapeHtml(ex?.answer || '')}">
+        </div>
+
+        <div id="fld-flash" style="display:${type==='flash'?'flex':'none'}; flex-direction:column; gap:10px;">
+          <label>Cards (term / translation)</label>
+          <div id="cardsWrap">${cards.map((c,i) => `<div class="pair-edit-row"><input type="text" data-card-front="${i}" value="${escapeHtml(c.front)}" placeholder="Finnish"><input type="text" data-card-back="${i}" value="${escapeHtml(c.back)}" placeholder="Translation"></div>`).join('')}</div>
+          <button class="btn btn-sm" id="addCardBtn" type="button">+ Card</button>
+        </div>
+
+        <div id="fld-match" style="display:${type==='match'?'flex':'none'}; flex-direction:column; gap:10px;">
+          <label>Pairs to match</label>
+          <div id="pairsWrap">${pairs.map((p,i) => `<div class="pair-edit-row"><input type="text" data-pair-left="${i}" value="${escapeHtml(p.left)}" placeholder="Word"><input type="text" data-pair-right="${i}" value="${escapeHtml(p.right)}" placeholder="Translation"></div>`).join('')}</div>
+          <button class="btn btn-sm" id="addPairBtn" type="button">+ Pair</button>
+        </div>
+
+        <div id="fld-fill" style="display:${type==='fill'?'flex':'none'}; flex-direction:column; gap:10px;">
+          <label>Sentence (mark the blank as ___)</label>
+          <input type="text" id="builderFillText" value="${escapeHtml(ex?.text || '')}">
+          <label>Correct word</label>
+          <input type="text" id="builderFillAnswer" value="${escapeHtml(ex?.answer || '')}">
+        </div>
+
+        <div id="fld-order" style="display:${type==='order'?'flex':'none'}; flex-direction:column; gap:10px;">
+          <label>Correct sentence (words separated by spaces)</label>
+          <input type="text" id="builderOrderText" value="${escapeHtml(orderSentence)}" placeholder="Kirjasto on avoinna kello yhdeksästä">
+        </div>
+
+        <div style="display:flex; gap:8px; margin-top:6px;">
+          <button class="btn btn-primary btn-sm" id="saveExerciseBtn">Save</button>
+          <button class="btn btn-sm" id="cancelExerciseBtn">Cancel</button>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function wireBuilderForm(sec) {
+  const typeSel = document.getElementById('builderType');
+  if (!typeSel) return;
+  const allFields = ['mc','tf','open','flash','match','fill','order'];
+  typeSel.addEventListener('change', () => { allFields.forEach(t => document.getElementById(`fld-${t}`).style.display = (t === typeSel.value) ? 'flex' : 'none'); });
+
+  const addOptBtn = document.getElementById('addOptionBtn');
+  if (addOptBtn) addOptBtn.addEventListener('click', () => {
+    const wrap = document.getElementById('optionsWrap'); const idx = wrap.children.length;
+    const div = document.createElement('div'); div.className = 'option-edit-row';
+    div.innerHTML = `<input type="radio" name="correctOpt" value="${idx}"><input type="text" data-opt-idx="${idx}" placeholder="Option ${idx+1}">`;
+    wrap.appendChild(div);
+  });
+  const addCardBtn = document.getElementById('addCardBtn');
+  if (addCardBtn) addCardBtn.addEventListener('click', () => {
+    const wrap = document.getElementById('cardsWrap'); const idx = wrap.children.length;
+    const div = document.createElement('div'); div.className = 'pair-edit-row';
+    div.innerHTML = `<input type="text" data-card-front="${idx}" placeholder="Finnish"><input type="text" data-card-back="${idx}" placeholder="Translation">`;
+    wrap.appendChild(div);
+  });
+  const addPairBtn = document.getElementById('addPairBtn');
+  if (addPairBtn) addPairBtn.addEventListener('click', () => {
+    const wrap = document.getElementById('pairsWrap'); const idx = wrap.children.length;
+    const div = document.createElement('div'); div.className = 'pair-edit-row';
+    div.innerHTML = `<input type="text" data-pair-left="${idx}" placeholder="Word"><input type="text" data-pair-right="${idx}" placeholder="Translation">`;
+    wrap.appendChild(div);
+  });
+
+  document.getElementById('cancelExerciseBtn').addEventListener('click', () => { state.editingExerciseId = null; renderMain(); });
+
+  document.getElementById('saveExerciseBtn').addEventListener('click', () => {
+    const type = typeSel.value;
+    const existingId = (state.editingExerciseId !== 'new') ? state.editingExerciseId : null;
+    let newEx;
+    if (type === 'mc') {
+      const question = document.getElementById('builderQuestion').value.trim();
+      const optionInputs = Array.from(document.querySelectorAll('#optionsWrap [data-opt-idx]'));
+      const correctIdx = Number(document.querySelector('input[name="correctOpt"]:checked')?.value ?? 0);
+      const opts = optionInputs.map((inp, i) => ({ text: inp.value.trim(), correct: i === correctIdx })).filter(o => o.text);
+      if (!question || opts.length < 2) { alert('Please fill in the question and at least 2 options'); return; }
+      newEx = { id: existingId || uid(), type: 'mc', question, options: opts };
+    } else if (type === 'tf') {
+      const statement = document.getElementById('builderStatement').value.trim();
+      const answer = document.getElementById('builderTfAnswer').value;
+      if (!statement) { alert('Please fill in the statement'); return; }
+      newEx = { id: existingId || uid(), type: 'tf', statement, answer };
+    } else if (type === 'open') {
+      const question = document.getElementById('builderOpenQuestion').value.trim();
+      const answer = document.getElementById('builderOpenAnswer').value.trim();
+      if (!question) { alert('Please fill in the question'); return; }
+      newEx = { id: existingId || uid(), type: 'open', question, answer };
+    } else if (type === 'flash') {
+      const fronts = Array.from(document.querySelectorAll('#cardsWrap [data-card-front]'));
+      const backs = Array.from(document.querySelectorAll('#cardsWrap [data-card-back]'));
+      const cards = fronts.map((inp, i) => ({ front: inp.value.trim(), back: backs[i].value.trim() })).filter(c => c.front && c.back);
+      if (cards.length < 2) { alert('Add at least 2 cards'); return; }
+      newEx = { id: existingId || uid(), type: 'flash', cards };
+    } else if (type === 'match') {
+      const lefts = Array.from(document.querySelectorAll('#pairsWrap [data-pair-left]'));
+      const rights = Array.from(document.querySelectorAll('#pairsWrap [data-pair-right]'));
+      const pairs = lefts.map((inp, i) => ({ left: inp.value.trim(), right: rights[i].value.trim() })).filter(p => p.left && p.right);
+      if (pairs.length < 2) { alert('Add at least 2 pairs'); return; }
+      newEx = { id: existingId || uid(), type: 'match', pairs };
+    } else if (type === 'fill') {
+      const text = document.getElementById('builderFillText').value.trim();
+      const answer = document.getElementById('builderFillAnswer').value.trim();
+      if (!text || !text.includes('___')) { alert('The sentence must contain a blank ___'); return; }
+      newEx = { id: existingId || uid(), type: 'fill', text, answer };
+    } else {
+      const orderText = document.getElementById('builderOrderText').value.trim();
+      const words = orderText.split(/\s+/).filter(Boolean);
+      if (words.length < 2) { alert('Enter at least 2 words'); return; }
+      newEx = { id: existingId || uid(), type: 'order', words };
+    }
+    if (!sec.exercises) sec.exercises = [];
+    if (existingId) { const i = sec.exercises.findIndex(e => e.id === existingId); sec.exercises[i] = newEx; } else { sec.exercises.push(newEx); }
+    state.editingExerciseId = null;
+    saveCourse(); renderMain(); renderSectionList();
+  });
+}
+
+function renderStudyView(main, sec) {
+  main.innerHTML = `
+    <div class="content-header"><h2 class="section-title-view">${escapeHtml(sec.title)}</h2></div>
+    ${renderBody(sec.body)}
+    <div class="exercises-wrap">
+      <div class="exercises-heading">Check yourself</div>
+      <div id="studyExercises"></div>
+    </div>
+  `;
+  const wrap = document.getElementById('studyExercises');
+  (sec.exercises || []).forEach(ex => { const card = document.createElement('div'); card.className = 'exercise-card'; card.appendChild(buildStudyExerciseNode(ex)); wrap.appendChild(card); });
+  if (!(sec.exercises || []).length) wrap.innerHTML = '<p style="color:var(--ink-faint); font-size:13.5px;">No exercises in this section yet.</p>';
+}
+
+function downloadText(filename, text) {
+  const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = filename;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+function copyText(text, btnEl) {
+  const ta = document.createElement('textarea');
+  ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+  document.body.appendChild(ta); ta.select();
+  try { document.execCommand('copy'); if (btnEl) { const orig = btnEl.textContent; btnEl.textContent = 'Copied ✓'; setTimeout(() => btnEl.textContent = orig, 1500); } }
+  catch (e) { console.error('copy failed', e); }
+  document.body.removeChild(ta);
+}
+function quizletFormat(cards) { return cards.map(c => `${c.front}\t${c.back}`).join('\n'); }
+
+function buildStudyExerciseNode(ex) {
+  const container = document.createElement('div');
+  const saved = progress[ex.id];
+
+  if (ex.type === 'mc') {
+    container.innerHTML = `<span class="exercise-type-tag ${TYPE_TAGCLASS.mc}">${TYPE_LABELS.mc}</span><div class="exercise-q">${escapeHtml(ex.question)}</div><div class="optsHolder"></div><div class="feedbackHolder"></div>`;
+    const optsHolder = container.querySelector('.optsHolder');
+    ex.options.forEach((opt, i) => {
+      const row = document.createElement('div'); row.className = 'option-row'; row.textContent = opt.text;
+      if (saved) { if (opt.correct) row.classList.add('correct-answer'); else if (saved.chosenIdx === i) row.classList.add('wrong-answer'); }
+      row.addEventListener('click', () => {
+        if (progress[ex.id]) return;
+        const correct = !!opt.correct;
+        progress[ex.id] = { status: correct ? 'correct' : 'incorrect', chosenIdx: i, at: Date.now() };
+        saveProgress(); renderMain(); renderProgressRing(); renderModuleProgress(); renderSectionList();
+      });
+      optsHolder.appendChild(row);
+    });
+    if (saved) container.querySelector('.feedbackHolder').innerHTML = `<div class="feedback-box ${saved.status==='correct'?'feedback-correct':'feedback-wrong'}">${saved.status==='correct' ? 'Correct!' : 'Not quite — the correct option is highlighted in green.'}</div>`;
+    return container;
+  }
+
+  if (ex.type === 'tf') {
+    container.innerHTML = `<span class="exercise-type-tag ${TYPE_TAGCLASS.tf}">${TYPE_LABELS.tf}</span><div class="exercise-q">${escapeHtml(ex.statement)}</div><div class="optsHolder"></div><div class="feedbackHolder"></div>`;
+    const optsHolder = container.querySelector('.optsHolder');
+    const labels = { true: 'True', false: 'False', notstated: 'Not stated' };
+    ['true','false','notstated'].forEach(val => {
+      const row = document.createElement('div'); row.className = 'option-row'; row.textContent = labels[val];
+      if (saved) { if (val === ex.answer) row.classList.add('correct-answer'); else if (saved.chosen === val) row.classList.add('wrong-answer'); }
+      row.addEventListener('click', () => {
+        if (progress[ex.id]) return;
+        const correct = val === ex.answer;
+        progress[ex.id] = { status: correct ? 'correct' : 'incorrect', chosen: val, at: Date.now() };
+        saveProgress(); renderMain(); renderProgressRing(); renderModuleProgress(); renderSectionList();
+      });
+      optsHolder.appendChild(row);
+    });
+    if (saved) container.querySelector('.feedbackHolder').innerHTML = `<div class="feedback-box ${saved.status==='correct'?'feedback-correct':'feedback-wrong'}">${saved.status==='correct' ? 'Correct!' : 'Not quite — the correct option is highlighted in green.'}${ex.explain ? ' ' + escapeHtml(ex.explain) : ''}</div>`;
+    return container;
+  }
+
+  if (ex.type === 'open') {
+    const savedMode = saved?.mode || 'text';
+    container.innerHTML = `
+      <span class="exercise-type-tag ${TYPE_TAGCLASS.open}">${TYPE_LABELS.open}</span>
+      <div class="exercise-q">${escapeHtml(ex.question)}</div>
+      ${saved ? '' : `
+        <div class="audio-answer-toggle">
+          <button class="btn btn-sm active" id="toggleText-${ex.id}" type="button">Write answer</button>
+          <button class="btn btn-sm" id="toggleAudio-${ex.id}" type="button">Record audio answer</button>
+        </div>
+      `}
+      <div id="answerArea-${ex.id}"></div>
+      <div class="feedbackHolder"></div>
+    `;
+    const answerArea = container.querySelector(`#answerArea-${ex.id}`);
+    const fb = container.querySelector('.feedbackHolder');
+
+    function renderTextMode() {
+      answerArea.innerHTML = `
+        <textarea class="body-editor" style="min-height:70px;" id="open-${ex.id}" ${saved?'disabled':''}>${saved && saved.mode !== 'audio' ? escapeHtml(saved.answerText||'') : ''}</textarea>
+        <div style="margin-top:10px; display:flex; gap:8px;">${saved ? '' : `<button class="btn btn-primary btn-sm" id="submit-${ex.id}">Submit answer</button>`}</div>
+      `;
+      if (!saved) {
+        answerArea.querySelector(`#submit-${ex.id}`).addEventListener('click', () => {
+          const text = answerArea.querySelector(`#open-${ex.id}`).value;
+          progress[ex.id] = { status: 'correct', mode: 'text', answerText: text, at: Date.now() };
+          saveProgress(); renderMain(); renderProgressRing(); renderModuleProgress(); renderSectionList();
+        });
+      }
+    }
+
+    function renderAudioMode() {
+      answerArea.innerHTML = `
+        <div class="recorder-box">
+          <button class="btn btn-sm" id="recBtn-${ex.id}">🎙 Start recording</button>
+          <span class="rec-dot" id="recDot-${ex.id}" style="display:none;"></span>
+          <span class="rec-timer" id="recTimer-${ex.id}"></span>
+        </div>
+        <div id="recPlayback-${ex.id}" style="margin-top:10px;"></div>
+        <div class="audio-note">Microphone access depends on your browser/device permissions. If recording isn't available, switch to "Write answer" instead.</div>
+        <div style="margin-top:10px;">${saved ? '' : `<button class="btn btn-primary btn-sm" id="submitAudio-${ex.id}" style="display:none;">Submit recording</button>`}</div>
+      `;
+      let mediaRecorder, chunks = [], timerInt, seconds = 0, recordedBlob = null;
+      const recBtn = answerArea.querySelector(`#recBtn-${ex.id}`);
+      const recDot = answerArea.querySelector(`#recDot-${ex.id}`);
+      const recTimer = answerArea.querySelector(`#recTimer-${ex.id}`);
+      const playback = answerArea.querySelector(`#recPlayback-${ex.id}`);
+      const submitBtn = answerArea.querySelector(`#submitAudio-${ex.id}`);
+
+      if (saved && saved.mode === 'audio' && saved.audioDataUrl) {
+        playback.innerHTML = `<audio controls src="${saved.audioDataUrl}" style="width:100%; max-width:340px;"></audio>`;
+      }
+
+      if (!saved) recBtn.addEventListener('click', async () => {
+        if (mediaRecorder && mediaRecorder.state === 'recording') { mediaRecorder.stop(); return; }
+        try {
+          const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+          chunks = [];
+          mediaRecorder = new MediaRecorder(stream);
+          mediaRecorder.ondataavailable = (e) => chunks.push(e.data);
+          mediaRecorder.onstop = () => {
+            recordedBlob = new Blob(chunks, { type: 'audio/webm' });
+            const url = URL.createObjectURL(recordedBlob);
+            playback.innerHTML = `<audio controls src="${url}" style="width:100%; max-width:340px;"></audio>`;
+            stream.getTracks().forEach(t => t.stop());
+            clearInterval(timerInt);
+            recDot.style.display = 'none';
+            recBtn.textContent = '🎙 Record again';
+            submitBtn.style.display = 'inline-block';
+          };
+          mediaRecorder.start();
+          seconds = 0;
+          recDot.style.display = 'inline-block'; recDot.classList.add('live');
+          recTimer.textContent = '0:00';
+          timerInt = setInterval(() => { seconds++; const m = Math.floor(seconds/60), s = seconds%60; recTimer.textContent = `${m}:${s.toString().padStart(2,'0')}`; }, 1000);
+          recBtn.textContent = '⏹ Stop recording';
+        } catch (e) {
+          playback.innerHTML = `<div class="feedback-box feedback-wrong">Couldn\u2019t access the microphone in this environment. Please use "Write answer" instead.</div>`;
+        }
+      });
+
+      if (submitBtn) submitBtn.addEventListener('click', () => {
+        if (!recordedBlob) return;
+        const reader = new FileReader();
+        reader.onload = () => {
+          progress[ex.id] = { status: 'correct', mode: 'audio', audioDataUrl: reader.result, at: Date.now() };
+          saveProgress(); renderMain(); renderProgressRing(); renderModuleProgress(); renderSectionList();
+        };
+        reader.readAsDataURL(recordedBlob);
+      });
+    }
+
+    if (saved) {
+      if (saved.mode === 'audio') renderAudioMode(); else renderTextMode();
+      fb.innerHTML = ex.answer ? `<div class="feedback-box feedback-correct">Answer key: ${escapeHtml(ex.answer)}</div>` : `<div class="feedback-box feedback-correct">Answer submitted.</div>`;
+    } else {
+      renderTextMode();
+      const toggleTextBtn = container.querySelector(`#toggleText-${ex.id}`);
+      const toggleAudioBtn = container.querySelector(`#toggleAudio-${ex.id}`);
+      toggleTextBtn.addEventListener('click', () => { toggleTextBtn.classList.add('active'); toggleAudioBtn.classList.remove('active'); renderTextMode(); });
+      toggleAudioBtn.addEventListener('click', () => { toggleAudioBtn.classList.add('active'); toggleTextBtn.classList.remove('active'); renderAudioMode(); });
+    }
+    return container;
+  }
+
+  if (ex.type === 'fill') {
+    const parts = ex.text.split('___');
+    container.innerHTML = `
+      <span class="exercise-type-tag ${TYPE_TAGCLASS.fill}">${TYPE_LABELS.fill}</span>
+      <div class="fill-sentence">${escapeHtml(parts[0])}<input type="text" class="fill-input" id="fillInput-${ex.id}" ${saved?'disabled':''} value="${saved ? escapeHtml(saved.value||'') : ''}">${escapeHtml(parts[1]||'')}</div>
+      ${saved ? '' : `<button class="btn btn-primary btn-sm" id="checkFill-${ex.id}">Check</button>`}
+      <div class="feedbackHolder"></div>
+    `;
+    const fb = container.querySelector('.feedbackHolder');
+    if (saved) fb.innerHTML = `<div class="feedback-box ${saved.status==='correct'?'feedback-correct':'feedback-wrong'}">${saved.status==='correct' ? 'Correct!' : `Not quite — the correct answer is: ${escapeHtml(ex.answer)}`}</div>`;
+    else setTimeout(() => {
+      const btn = container.querySelector(`#checkFill-${ex.id}`);
+      if (btn) btn.addEventListener('click', () => {
+        const val = container.querySelector(`#fillInput-${ex.id}`).value.trim();
+        const correct = val.toLowerCase() === ex.answer.trim().toLowerCase();
+        progress[ex.id] = { status: correct ? 'correct' : 'incorrect', value: val, at: Date.now() };
+        saveProgress(); renderMain(); renderProgressRing(); renderModuleProgress(); renderSectionList();
+      });
+    }, 0);
+    return container;
+  }
+
+  if (ex.type === 'order') {
+    if (!ephemeral[ex.id]) { const shuffled = ex.words.map((w, i) => ({ w, i })).sort(() => Math.random() - 0.5); ephemeral[ex.id] = { pool: shuffled, answer: [] }; }
+    const es = ephemeral[ex.id];
+    const isDone = !!saved;
+    container.innerHTML = `
+      <span class="exercise-type-tag ${TYPE_TAGCLASS.order}">${TYPE_LABELS.order}</span>
+      <div class="exercise-q">Arrange the words into the correct sentence</div>
+      <div class="order-answer" id="orderAnswer-${ex.id}"></div>
+      <div class="order-tokens" id="orderPool-${ex.id}"></div>
+      ${isDone ? '' : `<button class="btn btn-primary btn-sm" id="checkOrder-${ex.id}">Check</button>`}
+      <div class="feedbackHolder"></div>
+    `;
+    const answerEl = container.querySelector(`#orderAnswer-${ex.id}`);
+    const poolEl = container.querySelector(`#orderPool-${ex.id}`);
+    function renderTokens() {
+      answerEl.innerHTML = es.answer.map(item => `<span class="order-token">${escapeHtml(item.w)}</span>`).join('') || '<span style="color:var(--ink-faint); font-size:13px;">Click the words below to build the sentence</span>';
+      poolEl.innerHTML = es.pool.map((item, idx) => `<span class="order-token ${item.used?'used':''}" data-idx="${idx}">${escapeHtml(item.w)}</span>`).join('');
+      poolEl.querySelectorAll('.order-token').forEach(tok => {
+        tok.addEventListener('click', () => {
+          if (isDone) return;
+          const idx = Number(tok.getAttribute('data-idx'));
+          if (es.pool[idx].used) return;
+          es.pool[idx].used = true;
+          es.answer.push(es.pool[idx]);
+          renderTokens();
+        });
+      });
+    }
+    renderTokens();
+    if (isDone) {
+      answerEl.innerHTML = ex.words.map(w => `<span class="order-token">${escapeHtml(w)}</span>`).join('');
+      container.querySelector('.feedbackHolder').innerHTML = `<div class="feedback-box ${saved.status==='correct'?'feedback-correct':'feedback-wrong'}">${saved.status==='correct' ? 'Correct!' : 'Not quite — the correct order is shown above.'}</div>`;
+    } else {
+      setTimeout(() => {
+        const btn = container.querySelector(`#checkOrder-${ex.id}`);
+        if (btn) btn.addEventListener('click', () => {
+          const userOrder = es.answer.map(item => item.w);
+          const correct = JSON.stringify(userOrder) === JSON.stringify(ex.words);
+          progress[ex.id] = { status: correct ? 'correct' : 'incorrect', at: Date.now() };
+          saveProgress(); renderMain(); renderProgressRing(); renderModuleProgress(); renderSectionList();
+        });
+      }, 0);
+    }
+    return container;
+  }
+
+  if (ex.type === 'match') {
+    if (!ephemeral[ex.id]) { const rightShuffled = [...ex.pairs].sort(() => Math.random() - 0.5); ephemeral[ex.id] = { selectedLeft: null, matched: new Set(), rightOrder: rightShuffled }; }
+    const es = ephemeral[ex.id];
+    const isComplete = saved && saved.status === 'complete';
+    container.innerHTML = `
+      <span class="exercise-type-tag ${TYPE_TAGCLASS.match}">${TYPE_LABELS.match}</span>
+      <div class="exercise-q">Click a word on the left, then its translation on the right</div>
+      <div class="match-grid"><div class="match-col" id="matchLeft-${ex.id}"></div><div class="match-col" id="matchRight-${ex.id}"></div></div>
+      <div class="feedbackHolder"></div>
+    `;
+    const leftCol = container.querySelector(`#matchLeft-${ex.id}`);
+    const rightCol = container.querySelector(`#matchRight-${ex.id}`);
+    ex.pairs.forEach((p) => {
+      const item = document.createElement('div'); item.className = 'match-item'; item.textContent = p.left;
+      if (isComplete || es.matched.has(p.left)) item.classList.add('matched');
+      item.addEventListener('click', () => { if (isComplete || es.matched.has(p.left)) return; es.selectedLeft = p.left; renderMain(); });
+      if (es.selectedLeft === p.left) item.classList.add('selected');
+      leftCol.appendChild(item);
+    });
+    es.rightOrder.forEach((p) => {
+      const item = document.createElement('div'); item.className = 'match-item'; item.textContent = p.right;
+      if (isComplete || es.matched.has(p.left)) item.classList.add('matched');
+      item.addEventListener('click', () => {
+        if (isComplete || es.matched.has(p.left) || !es.selectedLeft) return;
+        if (es.selectedLeft === p.left) {
+          es.matched.add(p.left); es.selectedLeft = null;
+          if (es.matched.size === ex.pairs.length) { progress[ex.id] = { status: 'complete', at: Date.now() }; saveProgress(); renderProgressRing(); renderModuleProgress(); renderSectionList(); }
+          renderMain();
+        } else { item.classList.add('wrong-flash'); setTimeout(() => { es.selectedLeft = null; renderMain(); }, 500); }
+      });
+      rightCol.appendChild(item);
+    });
+    if (es.matched.size === ex.pairs.length || isComplete) container.querySelector('.feedbackHolder').innerHTML = `<div class="feedback-box feedback-correct">All pairs matched correctly!</div>`;
+    return container;
+  }
+
+  if (ex.type === 'diagnostic') {
+    if (!ephemeral[ex.id]) ephemeral[ex.id] = { idx: 0, tally: { great: 0, ontrack: 0, fix: 0 }, finished: (saved && saved.status === 'complete') };
+    const es = ephemeral[ex.id];
+    container.innerHTML = `<span class="exercise-type-tag ${TYPE_TAGCLASS.diagnostic}">${TYPE_LABELS.diagnostic}</span><div id="diagRoot-${ex.id}"></div>`;
+    const root = container.querySelector(`#diagRoot-${ex.id}`);
+
+    const RESULTS = {
+      great: { cls: 'diag-great', title: 'Nice — you\u2019re doing this right!', text: 'Your instincts already match strong exam strategy. Keep reading a little Finnish every day and you\u2019ll walk into the exam confident.' },
+      ontrack: { cls: 'diag-ontrack', title: 'You\u2019re on the right track', text: 'You\u2019ve got solid habits, with a couple of gaps. Revisit the lifehacks in this lesson\u2014they target exactly the spots that trip learners like you up.' },
+      fix: { cls: 'diag-fix', title: 'Let\u2019s fix your direction now', text: 'A few habits here are working against you on exam day\u2014but they\u2019re very fixable. Go back through this section\u2019s lifehacks closely, and you\u2019ll be solidly ready for the real YKI.' }
+    };
+
+    function renderResult() {
+      let top = 'great', max = -1;
+      for (const k in es.tally) { if (es.tally[k] > max) { max = es.tally[k]; top = k; } }
+      const r = RESULTS[top];
+      root.innerHTML = `
+        <div class="diag-result-card ${r.cls}">
+          <div class="diag-result-title">${r.title}</div>
+          <p style="margin:0; font-size:14px; line-height:1.6;">${r.text}</p>
+          <div style="margin-top:14px;"><button class="btn btn-sm" id="diagRestart-${ex.id}">Retake</button></div>
+        </div>
+      `;
+      root.querySelector(`#diagRestart-${ex.id}`).addEventListener('click', () => { ephemeral[ex.id] = { idx: 0, tally: { great: 0, ontrack: 0, fix: 0 }, finished: false }; renderMain(); });
+      if (!saved || saved.status !== 'complete') { progress[ex.id] = { status: 'complete', at: Date.now(), result: top }; saveProgress(); renderProgressRing(); renderModuleProgress(); renderSectionList(); }
+    }
+
+    function renderQuestion() {
+      if (es.idx >= ex.questions.length) { renderResult(); return; }
+      const q = ex.questions[es.idx];
+      root.innerHTML = `
+        <div class="diag-progress">${ex.questions.map((_, i) => `<div class="diag-dot ${i < es.idx ? 'filled' : ''}"></div>`).join('')}</div>
+        <div class="exercise-q">${escapeHtml(q.q)}</div>
+        <div id="diagOpts-${ex.id}"></div>
+      `;
+      const optsHolder = root.querySelector(`#diagOpts-${ex.id}`);
+      q.options.forEach(opt => {
+        const row = document.createElement('div'); row.className = 'option-row'; row.textContent = opt.text;
+        row.addEventListener('click', () => { es.tally[opt.tier]++; es.idx++; renderQuestion(); });
+        optsHolder.appendChild(row);
+      });
+    }
+
+    if (es.finished) renderResult(); else renderQuestion();
+    return container;
+  }
+
+  if (ex.type === 'flash') {
+    if (!ephemeral[ex.id]) ephemeral[ex.id] = { idx: 0, flipped: false, known: new Set(), dontknow: new Set(), finished: (saved && saved.status === 'complete') };
+    const es = ephemeral[ex.id];
+
+    container.innerHTML = `<span class="exercise-type-tag ${TYPE_TAGCLASS.flash}">${TYPE_LABELS.flash}</span><div id="flashRoot-${ex.id}"></div>`;
+    const root = container.querySelector(`#flashRoot-${ex.id}`);
+
+    function renderFlashSummary() {
+      root.innerHTML = `
+        <div class="flash-summary">
+          <div class="section-title-view" style="font-size:20px;">Done!</div>
+          <div class="flash-summary-stats">
+            <span class="stat-pill stat-know">Know: ${es.known.size}</span>
+            <span class="stat-pill stat-dontknow">Don't know: ${es.dontknow.size}</span>
+          </div>
+          <div class="export-row">
+            ${es.dontknow.size > 0 ? `<button class="btn btn-sm" id="retryUnknown-${ex.id}">Retry unknown (${es.dontknow.size})</button>` : ''}
+            <button class="btn btn-sm" id="restartFlash-${ex.id}">Start over</button>
+            <button class="btn btn-gold btn-sm" id="exportQuizlet-${ex.id}">Export to Quizlet (.txt)</button>
+            <button class="btn btn-sm" id="copyQuizlet-${ex.id}">Copy for Quizlet</button>
+          </div>
+        </div>
+      `;
+      root.querySelector(`#exportQuizlet-${ex.id}`).addEventListener('click', () => downloadText('quizlet-cards.txt', quizletFormat(ex.cards)));
+      root.querySelector(`#copyQuizlet-${ex.id}`).addEventListener('click', (e) => copyText(quizletFormat(ex.cards), e.target));
+      root.querySelector(`#restartFlash-${ex.id}`).addEventListener('click', () => { ephemeral[ex.id] = { idx: 0, flipped: false, known: new Set(), dontknow: new Set(), finished: false }; renderMain(); });
+      const retryBtn = root.querySelector(`#retryUnknown-${ex.id}`);
+      if (retryBtn) retryBtn.addEventListener('click', () => {
+        const unknownFronts = Array.from(es.dontknow);
+        ephemeral[ex.id] = { idx: 0, flipped: false, known: new Set(), dontknow: new Set(), finished: false, deck: ex.cards.filter(c => unknownFronts.includes(c.front)) };
+        renderMain();
+      });
+      if (!saved || saved.status !== 'complete') { progress[ex.id] = { status: 'complete', at: Date.now(), known: es.known.size, dontknow: es.dontknow.size }; saveProgress(); renderProgressRing(); renderModuleProgress(); renderSectionList(); }
+    }
+
+    function renderFlashCard() {
+      const deck = es.deck || ex.cards;
+      if (es.idx >= deck.length) { renderFlashSummary(); return; }
+      const card = deck[es.idx];
+      const nextCard = deck[es.idx + 1];
+      root.innerHTML = `
+        <div class="flash-wrap">
+          <div class="flash-stack">
+            ${nextCard ? `<div class="flash-card behind">${escapeHtml(nextCard.front)}</div>` : ''}
+            <div class="flash-card top" id="flashCard-${ex.id}">
+              <span class="swipe-label dontknow" id="lblDont-${ex.id}">DON'T KNOW</span>
+              <span class="swipe-label know" id="lblKnow-${ex.id}">KNOW</span>
+              <span id="flashText-${ex.id}">${escapeHtml(card.front)}</span>
+            </div>
+          </div>
+          <div class="flash-actions">
+            <div class="flash-round-btn dontknow" id="btnDont-${ex.id}">✕</div>
+            <span class="flash-counter">${es.idx+1} / ${deck.length}</span>
+            <div class="flash-round-btn know" id="btnKnow-${ex.id}">♥</div>
+          </div>
+          <div class="flash-hint">Click the card to reveal the translation · swipe or use the buttons for know/don't know</div>
+        </div>
+      `;
+      const cardEl = root.querySelector(`#flashCard-${ex.id}`);
+      const textEl = root.querySelector(`#flashText-${ex.id}`);
+      const lblKnow = root.querySelector(`#lblKnow-${ex.id}`);
+      const lblDont = root.querySelector(`#lblDont-${ex.id}`);
+      let flipped = false;
+      let dragging = false, startX = 0, currentX = 0, moved = false;
+
+      function commit(known) { if (known) es.known.add(card.front); else es.dontknow.add(card.front); es.idx++; es.flipped = false; renderFlashCard(); }
+
+      function onPointerDown(e) { dragging = true; moved = false; startX = (e.touches ? e.touches[0].clientX : e.clientX); cardEl.classList.add('dragging'); }
+      function onPointerMove(e) {
+        if (!dragging) return;
+        currentX = (e.touches ? e.touches[0].clientX : e.clientX) - startX;
+        if (Math.abs(currentX) > 6) moved = true;
+        cardEl.style.transform = `translateX(${currentX}px) rotate(${currentX/18}deg)`;
+        lblKnow.style.opacity = Math.max(0, Math.min(1, currentX / 90));
+        lblDont.style.opacity = Math.max(0, Math.min(1, -currentX / 90));
+      }
+      function onPointerUp() {
+        if (!dragging) return;
+        dragging = false;
+        cardEl.classList.remove('dragging');
+        if (Math.abs(currentX) > 90) {
+          const known = currentX > 0;
+          cardEl.style.transform = `translateX(${known ? 600 : -600}px) rotate(${known ? 30 : -30}deg)`;
+          cardEl.style.opacity = '0';
+          setTimeout(() => commit(known), 200);
+        } else {
+          cardEl.style.transform = ''; lblKnow.style.opacity = 0; lblDont.style.opacity = 0;
+          if (!moved) { flipped = !flipped; cardEl.classList.toggle('flipped', flipped); textEl.textContent = flipped ? card.back : card.front; }
+        }
+        currentX = 0;
+      }
+      cardEl.addEventListener('pointerdown', onPointerDown);
+      window.addEventListener('pointermove', onPointerMove);
+      window.addEventListener('pointerup', onPointerUp);
+      root.querySelector(`#btnKnow-${ex.id}`).addEventListener('click', () => commit(true));
+      root.querySelector(`#btnDont-${ex.id}`).addEventListener('click', () => commit(false));
+    }
+
+    if (es.finished) renderFlashSummary(); else renderFlashCard();
+    return container;
+  }
+
+  return container;
+}
+
+function deleteSection(id) {
+  const l = getLesson();
+  if (!l || l.sections.length <= 1) { alert('Can\u2019t delete the lesson\u2019s last section'); return; }
+  if (!confirm('Delete this section?')) return;
+  l.sections = l.sections.filter(s => s.id !== id);
+  if (state.sectionId === id) state.sectionId = l.sections[0].id;
+  saveCourse(); renderAll();
+}
+function addSection() {
+  const l = getLesson(); if (!l) return;
+  const newSec = { id: uid(), title: `Section ${l.sections.length + 1} — New section`, body: '', exercises: [] };
+  l.sections.push(newSec); state.sectionId = newSec.id; state.showHomework = false;
+  saveCourse(); renderAll();
+}
+function moveSectionUp(id) {
+  const l = getLesson(); const idx = l.sections.findIndex(s => s.id === id);
+  if (idx <= 0) return;
+  [l.sections[idx-1], l.sections[idx]] = [l.sections[idx], l.sections[idx-1]];
+  saveCourse(); renderSectionList();
+}
+
+function wireStaticEvents() {
+  document.getElementById('modeEditBtn').addEventListener('click', () => {
+    state.mode = 'edit'; document.getElementById('modeEditBtn').classList.add('active'); document.getElementById('modeStudyBtn').classList.remove('active'); renderMain();
+  });
+  document.getElementById('modeStudyBtn').addEventListener('click', () => {
+    state.mode = 'study'; document.getElementById('modeStudyBtn').classList.add('active'); document.getElementById('modeEditBtn').classList.remove('active'); renderMain();
+  });
+  document.getElementById('moduleSelect').addEventListener('change', (e) => {
+    state.moduleId = e.target.value; const m = getModule();
+    state.lessonId = m.lessons[0]?.id || null; const l = getLesson();
+    state.sectionId = l?.sections[0]?.id || null; state.showHomework = false;
+    renderAll();
+  });
+  document.getElementById('lessonSelect').addEventListener('change', (e) => {
+    state.lessonId = e.target.value; const l = getLesson();
+    state.sectionId = l?.sections[0]?.id || null; state.showHomework = false;
+    renderAll();
+  });
+  document.getElementById('addSectionBtn').addEventListener('click', addSection);
+  document.getElementById('homeworkPin').addEventListener('click', () => { state.showHomework = true; renderSectionList(); renderMain(); });
+  document.getElementById('sectionList').addEventListener('click', (e) => {
+    const target = e.target; const action = target.getAttribute('data-action'); const id = target.getAttribute('data-id');
+    if (!action) return;
+    if (action === 'select') { state.sectionId = id; state.showHomework = false; state.editingExerciseId = null; renderSectionList(); renderMain(); }
+    else if (action === 'up') moveSectionUp(id);
+    else if (action === 'delete') deleteSection(id);
+  });
+}
+
+(async function init() { await loadState(); wireStaticEvents(); renderAll(); })();
+</script>
+</body>
+</html>
